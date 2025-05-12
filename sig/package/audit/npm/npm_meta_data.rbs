@@ -13,6 +13,8 @@ module Package
         private
 
         def update_meta_data: (Package, Hash[Symbol, untyped]) -> void
+
+        def fetchable_packages: (Array[Package]) -> Array[Package]
       end
     end
   end
