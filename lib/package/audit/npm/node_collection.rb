@@ -58,11 +58,11 @@ module Package
           package_json = JSON.parse(File.read("#{@dir}/#{Const::File::PACKAGE_JSON}"), symbolize_names: true)
           default_deps = package_json[:dependencies] || {}
           dev_deps = package_json[:devDependencies] || {}
-          
+
           # Filter out local dependencies before processing
           default_deps = filter_local_dependencies(default_deps)
           dev_deps = filter_local_dependencies(dev_deps)
-          
+
           [default_deps, dev_deps]
         end
 
@@ -72,10 +72,10 @@ module Package
 
         def local_dependency?(version)
           # Check for local file paths
-          version.to_s.start_with?('file:', 'link:', './', '../') || 
-          version.to_s.include?('file:') ||
-          # Check for git repositories with local paths
-          (version.to_s.start_with?('git+') && version.to_s.include?('file:'))
+          version.to_s.start_with?('file:', 'link:', './', '../') ||
+            version.to_s.include?('file:') ||
+            # Check for git repositories with local paths
+            (version.to_s.start_with?('git+') && version.to_s.include?('file:'))
         end
 
         def fetch_from_lock_file

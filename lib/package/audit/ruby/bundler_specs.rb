@@ -32,8 +32,6 @@ module Package
           gemfile_specs
         end
 
-        private
-
         def self.filter_local_dependencies(specs)
           specs.reject { |spec| local_dependency?(spec) }
         end
@@ -43,6 +41,7 @@ module Package
           source = spec.source
           return true if source.is_a?(Bundler::Source::Path)
           return true if source.is_a?(Bundler::Source::Git) && source.uri.start_with?('file:', './', '../')
+
           false
         end
       end

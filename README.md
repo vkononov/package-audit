@@ -1,7 +1,5 @@
 # Package::Audit
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/vkononov)
-
 [![Gem Version](https://img.shields.io/gem/v/package-audit.svg)](https://rubygems.org/gems/package-audit)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Lint Status](https://github.com/vkononov/package-audit/actions/workflows/lint.yml/badge.svg)](https://github.com/vkononov/package-audit/actions/workflows/lint.yml)

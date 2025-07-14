@@ -1,0 +1,16 @@
+# yarn lockfile v1
+
+jest@^29.0.0:
+  version "29.0.0"
+  resolved "https://registry.yarnpkg.com/jest/-/jest-29.0.0.tgz#12345"
+  integrity sha512-example123456789
+
+normal-package@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/normal-package/-/normal-package-1.0.0.tgz#67890"
+  integrity sha512-example987654321
+
+semver@^6.3.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.0.tgz#abcdef"
+  integrity sha512-exampleabcdef 

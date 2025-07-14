@@ -1,0 +1,17 @@
+{
+  "name": "test-with-local-deps",
+  "private": true,
+  "version": "0.1.0",
+  "dependencies": {
+    "local-module": "file:./local-module",
+    "shared-utils": "../shared-utils",
+    "link-package": "link:./link-package",
+    "git-local": "git+file:./local-git",
+    "normal-package": "^1.0.0",
+    "semver": "^6.3.0"
+  },
+  "devDependencies": {
+    "local-dev": "./local-dev-tools",
+    "jest": "^29.0.0"
+  }
+} 
