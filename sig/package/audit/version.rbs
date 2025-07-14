@@ -1,5 +1,0 @@
-module Package
-  module Audit
-    VERSION: String
-  end
-end
