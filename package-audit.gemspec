@@ -3,8 +3,8 @@ require_relative 'lib/package/audit/version'
 Gem::Specification.new do |spec|
   spec.name = 'package-audit'
   spec.version = Package::Audit::VERSION
-  spec.authors = ['Tactica Communications Inc.']
-  spec.email = ['support@tactica.ca']
+  spec.authors = ['Vadim Kononov']
+  spec.email = ['vadim@konoson.com']
 
   spec.summary = 'A helper tool to find outdated, deprecated and vulnerable dependencies.'
   spec.description = 'A useful tool for patch management and prioritization, package-audit produces a list of dependencies that are outdated, deprecated or have security vulnerabilities.' # rubocop:disable Layout/LineLength
@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 2.6.0'
 
   spec.metadata['homepage_uri'] = spec.homepage
-  spec.metadata['source_code_uri'] = 'https://github.com/tactica/package-audit'
+  spec.metadata['source_code_uri'] = 'https://github.com/vkononov/package-audit'
 
   # Specify which files should be added to the gem when it is released.
   spec.files = Dir.glob('{exe,lib,sig}/**/*', File::FNM_DOTMATCH)
