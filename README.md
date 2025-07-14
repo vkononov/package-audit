@@ -9,6 +9,8 @@ A useful tool for patch management and prioritization, `package-audit` produces 
 
 `Package::Audit` will automatically detect the technologies used by the project and print out an appropriate report.
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/vkononov)
+
 ## Supported Technologies
 
 * Ruby
