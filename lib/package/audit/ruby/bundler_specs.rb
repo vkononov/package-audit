@@ -9,10 +9,11 @@ module Package
     module Ruby
       class BundlerSpecs
         def self.all(dir)
-          Bundler.with_unbundled_env do
+          specs = Bundler.with_unbundled_env do
             ENV['BUNDLE_GEMFILE'] = "#{dir}/Gemfile"
             Bundler.ui.silence { Bundler.definition.resolve }
           end
+          filter_local_dependencies(specs)
         end
 
         def self.gemfile(dir)
@@ -29,6 +30,19 @@ module Package
             current_dependencies.key? spec.name
           end
           gemfile_specs
+        end
+
+        def self.filter_local_dependencies(specs)
+          specs.reject { |spec| local_dependency?(spec) }
+        end
+
+        def self.local_dependency?(spec)
+          # Check if the gem has a local source (path or git with local path)
+          source = spec.source
+          return true if source.is_a?(Bundler::Source::Path)
+          return true if source.is_a?(Bundler::Source::Git) && source.uri.start_with?('file:', './', '../')
+
+          false
         end
       end
     end
