@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-source '.bash_palette'
+RESET_COLOR='\033[0m'
+HIGHLIGHT_COLOR='\033[0;35m'
+SUCCESS_COLOR='\033[0;32m'
+ERROR_COLOR='\033[0;31m'
+
 clear
 
 # linter configuration paths

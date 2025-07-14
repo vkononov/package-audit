@@ -1,9 +1,0 @@
-module Package
-  module Audit
-    module Util
-      module RiskLegend
-        def self.print: -> void
-      end
-    end
-  end
-end
