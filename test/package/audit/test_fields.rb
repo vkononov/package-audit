@@ -15,7 +15,7 @@ module Package
       end
 
       def test_that_the_same_fields_are_shown_for_all_reports
-        headers = Const::Fields::HEADERS.select { |key, _value| Const::Fields::DEFAULT.include?(key) }
+        headers = Const::Fields::HEADERS.slice(*Const::Fields::DEFAULT)
 
         deprecated_output = `bundle exec package-audit deprecated test/files/gemfile/report`
         outdated_output = `bundle exec package-audit outdated test/files/gemfile/report`
