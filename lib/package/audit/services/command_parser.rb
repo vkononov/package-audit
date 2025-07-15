@@ -73,7 +73,7 @@ module Package
       def print_results(technology, pkgs, ignored_pkgs)
         PackagePrinter.new(@options, pkgs).print(Const::Fields::DEFAULT)
         print_summary(technology, pkgs, ignored_pkgs) unless @options[Enum::Option::FORMAT] == Enum::Format::CSV
-        print_disclaimer(technology) unless @options[Enum::Option::FORMAT] == Enum::Format::CSV || pkgs.empty?
+        print_disclaimer(technology) unless @options[Enum::Option::FORMAT] || pkgs.empty?
       end
 
       def print_summary(technology, pkgs, ignored_pkgs)
