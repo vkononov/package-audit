@@ -181,7 +181,7 @@ module Package
         assert_equal ['test-module'], updated_config['technology']['node'].keys
       end
 
-      def test_that_it_deletes_config_file_when_no_packages_remain
+      def test_that_it_creates_empty_config_file_when_no_packages_remain
         config = {
           'technology' => {
             'ruby' => {
@@ -195,7 +195,11 @@ module Package
 
         capture_io { cleaner.run }
 
-        refute_path_exists @config_file
+        assert_path_exists @config_file
+        
+        # Verify the config file contains empty YAML structure
+        cleaned_content = YAML.load_file(@config_file)
+        assert_empty cleaned_content
       end
 
       def test_that_it_removes_empty_technology_sections # rubocop:disable Metrics/MethodLength
@@ -277,8 +281,7 @@ module Package
 
         # Verify the custom config file contains empty YAML structure
         cleaned_content = YAML.load_file(@custom_config_file)
-
-        assert_empty(cleaned_content)
+        assert_empty cleaned_content
       end
 
       def test_that_it_does_not_modify_config_when_no_changes_needed # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
@@ -323,8 +326,10 @@ module Package
 
         capture_io { cleaner.run }
 
-        # Should delete the config file since no valid packages remain
-        refute_path_exists @config_file
+        # Should create an empty config file since no valid packages remain
+        assert_path_exists @config_file
+        cleaned_content = YAML.load_file(@config_file)
+        assert_empty cleaned_content
       end
 
       def test_that_it_handles_package_config_that_is_not_a_hash # rubocop:disable Metrics/MethodLength
