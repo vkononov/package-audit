@@ -181,7 +181,7 @@ module Package
         assert_equal ['test-module'], updated_config['technology']['node'].keys
       end
 
-      def test_that_it_creates_empty_config_file_when_no_packages_remain
+      def test_that_it_creates_empty_config_file_when_no_packages_remain # rubocop:disable Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -196,9 +196,10 @@ module Package
         capture_io { cleaner.run }
 
         assert_path_exists @config_file
-        
+
         # Verify the config file contains empty YAML structure
         cleaned_content = YAML.load_file(@config_file)
+
         assert_empty cleaned_content
       end
 
@@ -281,6 +282,7 @@ module Package
 
         # Verify the custom config file contains empty YAML structure
         cleaned_content = YAML.load_file(@custom_config_file)
+
         assert_empty cleaned_content
       end
 
@@ -329,6 +331,7 @@ module Package
         # Should create an empty config file since no valid packages remain
         assert_path_exists @config_file
         cleaned_content = YAML.load_file(@config_file)
+
         assert_empty cleaned_content
       end
 
