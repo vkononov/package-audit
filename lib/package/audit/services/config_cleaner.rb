@@ -25,8 +25,8 @@ module Package
 
         return unless config_changed?(cleaned_config)
 
-          write_config_file(cleaned_config)
-          print_summary unless @options[Enum::Option::FORMAT]
+        write_config_file(cleaned_config)
+        print_summary unless @options[Enum::Option::FORMAT]
       end
 
       attr_reader :removed_packages
