@@ -273,7 +273,12 @@ module Package
         output = capture_io { cleaner.run }
 
         assert_match(/Cleaned up 1 package\(s\) from custom-config\.yml/, output[0])
-        refute_path_exists @custom_config_file
+        assert_path_exists @custom_config_file
+
+        # Verify the custom config file contains empty YAML structure
+        cleaned_content = YAML.load_file(@custom_config_file)
+
+        assert_empty(cleaned_content)
       end
 
       def test_that_it_does_not_modify_config_when_no_changes_needed # rubocop:disable Metrics/AbcSize, Metrics/MethodLength

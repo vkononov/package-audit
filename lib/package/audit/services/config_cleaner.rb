@@ -200,7 +200,12 @@ module Package
 
       def write_config_file(cleaned_config)
         if cleaned_config.empty?
-          FileUtils.rm_f(@config_file_path)
+          # Only delete config files in the default location, not custom ones provided via --config
+          if @options[Enum::Option::CONFIG].nil?
+            FileUtils.rm_f(@config_file_path)
+          else
+            File.write(@config_file_path, cleaned_config.to_yaml)
+          end
         else
           File.write(@config_file_path, cleaned_config.to_yaml)
         end
