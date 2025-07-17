@@ -8,6 +8,15 @@ require 'bundler'
 module Package
   module Audit
     class Cli < Minitest::Test
+      def setup
+        @config_file = 'test/files/config/.package-audit.yml'
+        backup_config_file
+      end
+
+      def teardown
+        restore_config_file
+      end
+
       def test_that_it_version_command_works
         output = `bundle exec package-audit --version`
 
@@ -83,6 +92,20 @@ module Package
         output = `bundle exec package-audit test/files/gemfile/empty --technology invalid`
 
         assert_match "\"invalid\" is not a supported technology, use one of #{Enum::Technology.all}", output
+      end
+
+      private
+
+      def backup_config_file
+        return unless File.exist?(@config_file)
+
+        @config_backup = File.read(@config_file)
+      end
+
+      def restore_config_file
+        return unless @config_backup
+
+        File.write(@config_file, @config_backup)
       end
     end
   end

@@ -1,0 +1,17 @@
+technology:
+  node:
+    test-module:
+      version: 1.5.0
+      deprecated: false
+      outdated: false
+      vulnerable: false
+  ruby:
+    another-gem:
+      version: 2.0.0
+      deprecated: false
+      outdated: false
+    test-gem:
+      version: 1.0.0
+      deprecated: false
+      outdated: false
+      vulnerable: false 

@@ -1,0 +1,13 @@
+technology:
+  ruby:
+    missing-gem:
+      version: 1.0.0
+      outdated: false
+    test:
+      version: 0.29.0
+      deprecated: false
+      outdated: false
+      vulnerable: false
+    test2:
+      version: 1.0.0
+      outdated: false 
