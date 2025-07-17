@@ -8,4 +8,3 @@ technology:
     test2:
       version: 1.0.0
       outdated: false
-      vulnerable: false 
