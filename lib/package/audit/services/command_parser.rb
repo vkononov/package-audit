@@ -53,11 +53,7 @@ module Package
             ignored_pkgs = [] if @options[Enum::Option::INCLUDE_IGNORED]
             active_pkgs = (all_pkgs || []) - (ignored_pkgs || [])
             cumulative_pkgs += active_pkgs
-
-            # Collect all packages (including ignored ones) for config cleaning
-            mutex.synchronize do
-              all_packages_for_config += all_pkgs || []
-            end
+            mutex.synchronize {all_packages_for_config += all_pkgs || []}
 
             sleep 0.1 while technology_index != thread_index # print each technology in order
             mutex.synchronize do
@@ -75,10 +71,7 @@ module Package
           raise thread[:exception] if thread[:exception]
         end
 
-        # Stop spinner before cleaning config to ensure clean output
-        @spinner.stop
-
-        # Clean up configuration file after processing all technologies
+        @spinner.stop # Stop spinner before cleaning config to ensure clean output
         clean_config(all_packages_for_config)
 
         cumulative_pkgs.any? ? 1 : 0
