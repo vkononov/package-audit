@@ -1,5 +1,6 @@
 require 'json'
 require 'net/http'
+require 'socket'
 
 module Package
   module Audit
@@ -11,7 +12,7 @@ module Package
           @packages = packages
         end
 
-        def fetch # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        def fetch # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
           threads = @packages.map do |package|
             Thread.new do
               response = Net::HTTP.get_response(URI.parse("#{REGISTRY_URL}/#{package.name}"))
@@ -20,14 +21,35 @@ module Package
 
               json_package = JSON.parse(response.body, symbolize_names: true)
               update_meta_data(package, json_package)
+            rescue Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout => e
+              warn "Warning: Network timeout while fetching metadata for #{package.name}: #{e.message}"
+              Thread.current[:exception] = e
+            rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
+              warn "Warning: Network error while fetching metadata for #{package.name}: #{e.message}"
+              Thread.current[:exception] = e
             rescue StandardError => e
               Thread.current[:exception] = e
             end
           end
+
+          network_errors = []
           threads.each do |thread|
             thread.join
-            raise thread[:exception] if thread[:exception]
+            next unless thread[:exception]
+
+            case thread[:exception]
+            when Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH # rubocop:disable Layout/LineLength
+              network_errors << thread[:exception]
+            else
+              raise thread[:exception]
+            end
           end
+
+          unless network_errors.empty?
+            warn "Warning: #{network_errors.size} network error(s) occurred while fetching package metadata."
+            warn 'Some packages may not show complete version information.'
+          end
+
           @packages
         end
 
