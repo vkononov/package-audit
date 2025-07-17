@@ -7,7 +7,7 @@ require_relative '../../../../lib/package/audit/enum/technology'
 
 module Package
   module Audit
-    class TestConfigCleaner < Minitest::Test
+    class TestConfigCleaner < Minitest::Test # rubocop:disable Metrics/ClassLength
       def setup
         @temp_dir = Dir.mktmpdir
         @config_file = File.join(@temp_dir, '.package-audit.yml')
@@ -52,7 +52,7 @@ module Package
         assert_equal ['', ''], output
       end
 
-      def test_that_it_removes_packages_with_wrong_versions
+      def test_that_it_removes_packages_with_wrong_versions # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -77,7 +77,7 @@ module Package
         assert_equal ['another-gem'], updated_config['technology']['ruby'].keys
       end
 
-      def test_that_it_removes_packages_that_no_longer_exist
+      def test_that_it_removes_packages_that_no_longer_exist # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -102,7 +102,7 @@ module Package
         assert_equal ['test-gem'], updated_config['technology']['ruby'].keys
       end
 
-      def test_that_it_sorts_package_names_alphabetically
+      def test_that_it_sorts_package_names_alphabetically # rubocop:disable Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -123,7 +123,7 @@ module Package
         assert_equal %w[another-gem test-gem], package_names
       end
 
-      def test_that_it_sorts_package_directives_alphabetically
+      def test_that_it_sorts_package_directives_alphabetically # rubocop:disable Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -149,7 +149,7 @@ module Package
         assert_equal %w[version deprecated outdated vulnerable], keys
       end
 
-      def test_that_it_works_with_multiple_technologies
+      def test_that_it_works_with_multiple_technologies # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -198,7 +198,7 @@ module Package
         refute_path_exists @config_file
       end
 
-      def test_that_it_removes_empty_technology_sections
+      def test_that_it_removes_empty_technology_sections # rubocop:disable Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -257,7 +257,7 @@ module Package
         assert_equal ['', ''], output
       end
 
-      def test_that_it_works_with_custom_config_file
+      def test_that_it_works_with_custom_config_file # rubocop:disable Metrics/MethodLength
         @options['config'] = @custom_config_file
         config = {
           'technology' => {
@@ -276,7 +276,7 @@ module Package
         refute_path_exists @custom_config_file
       end
 
-      def test_that_it_does_not_modify_config_when_no_changes_needed
+      def test_that_it_does_not_modify_config_when_no_changes_needed # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {
@@ -322,7 +322,7 @@ module Package
         refute_path_exists @config_file
       end
 
-      def test_that_it_handles_package_config_that_is_not_a_hash
+      def test_that_it_handles_package_config_that_is_not_a_hash # rubocop:disable Metrics/MethodLength
         config = {
           'technology' => {
             'ruby' => {

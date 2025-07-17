@@ -8,7 +8,7 @@ require 'json'
 
 module Package
   module Audit
-    class ConfigCleaner
+    class ConfigCleaner # rubocop:disable Metrics/ClassLength
       def initialize(dir, config, all_packages, options)
         @dir = dir
         @config = config
@@ -123,32 +123,38 @@ module Package
       end
 
       def determine_removal_reason(package_name, package_config)
-        # Find the technology for this package
-        technology = nil
-        @config[Const::YAML::TECHNOLOGY].each do |tech, packages|
-          if packages.key?(package_name)
-            technology = tech
-            break
-          end
-        end
-
+        technology = find_technology_for_package(package_name)
         return 'unknown reason' unless technology
 
         current_packages = current_packages_for_technology(technology)
         config_version = package_config[Const::YAML::VERSION]
         current_version = current_packages[package_name]
 
+        determine_reason_based_on_versions(package_name, technology, config_version, current_version)
+      end
+
+      def find_technology_for_package(package_name)
+        @config[Const::YAML::TECHNOLOGY].each do |tech, packages|
+          return tech if packages.key?(package_name)
+        end
+        nil
+      end
+
+      def determine_reason_based_on_versions(package_name, technology, config_version, current_version)
         if current_version.nil?
-          # Check if package actually exists in project files
-          if package_exists_in_project_files?(package_name, technology)
-            'package version has changed'
-          else
-            'package no longer exists'
-          end
+          determine_reason_for_missing_package(package_name, technology)
         elsif config_version != current_version
           "version changed from #{config_version} to #{current_version}"
         else
           'unknown reason'
+        end
+      end
+
+      def determine_reason_for_missing_package(package_name, technology)
+        if package_exists_in_project_files?(package_name, technology)
+          'package version has changed'
+        else
+          'package no longer exists'
         end
       end
 
@@ -208,7 +214,10 @@ module Package
 
         # Sort by technology then by name for consistent output
         @removed_packages.sort_by { |pkg| [pkg[:technology], pkg[:name]] }.each do |removed_package|
-          puts "  - #{removed_package[:name]}@#{removed_package[:version]} (#{removed_package[:technology]}): #{removed_package[:reason]}"
+          package_info = "#{removed_package[:name]}@#{removed_package[:version]}"
+          tech_info = "(#{removed_package[:technology]})"
+          reason = removed_package[:reason]
+          puts "  - #{package_info} #{tech_info}: #{reason}"
         end
       end
     end
