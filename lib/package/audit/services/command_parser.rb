@@ -6,6 +6,7 @@ require_relative '../technology/detector'
 require_relative '../technology/validator'
 require_relative '../util/spinner'
 require_relative '../util/summary_printer'
+require_relative 'config_cleaner'
 require_relative 'package_finder'
 require_relative 'package_printer'
 
@@ -42,6 +43,7 @@ module Package
       def process_technologies # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
         mutex = Mutex.new
         cumulative_pkgs = []
+        all_packages_for_config = []
         thread_index = 0
 
         @spinner.start
@@ -49,11 +51,18 @@ module Package
           Thread.new do
             all_pkgs, ignored_pkgs = PackageFinder.new(@config, @dir, @report, @groups).run(technology)
             ignored_pkgs = [] if @options[Enum::Option::INCLUDE_IGNORED]
-            cumulative_pkgs += (all_pkgs || []) - (ignored_pkgs || [])
+            active_pkgs = (all_pkgs || []) - (ignored_pkgs || [])
+            cumulative_pkgs += active_pkgs
+
+            # Collect all packages (including ignored ones) for config cleaning
+            mutex.synchronize do
+              all_packages_for_config += all_pkgs || []
+            end
+
             sleep 0.1 while technology_index != thread_index # print each technology in order
             mutex.synchronize do
               @spinner.stop
-              print_results(technology, (all_pkgs || []) - (ignored_pkgs || []), ignored_pkgs || [])
+              print_results(technology, active_pkgs, ignored_pkgs || [])
               thread_index += 1
               @spinner.start
             end
@@ -65,6 +74,13 @@ module Package
           thread.join
           raise thread[:exception] if thread[:exception]
         end
+
+        # Stop spinner before cleaning config to ensure clean output
+        @spinner.stop
+
+        # Clean up configuration file after processing all technologies
+        clean_config(all_packages_for_config)
+
         cumulative_pkgs.any? ? 1 : 0
       ensure
         @spinner.stop
@@ -124,6 +140,10 @@ module Package
         technology_validator = Technology::Validator.new(@dir)
         @options[Enum::Option::TECHNOLOGY]&.each { |technology| technology_validator.validate! technology }
         (@options[Enum::Option::TECHNOLOGY] || Technology::Detector.new(@dir).detect).sort
+      end
+
+      def clean_config(all_packages)
+        ConfigCleaner.new(@dir, @config, all_packages, @options).run
       end
 
       def human_readable_technologies
