@@ -41,7 +41,14 @@ module Package
         end
 
         def fetch_package_version(dep_name, pkg_block)
-          version = pkg_block.match(/version"?\s*"(.*?)"/)&.captures&.[](0)
+          # Try different version formats:
+          # 1. version: "1.2.3"    - quoted version
+          # 2. version: 1.2.3      - unquoted version
+          # 3. "pkg@1.2.3":        - version in package spec
+          # 4. "pkg@npm:1.2.3":    - version with npm prefix
+          version = pkg_block.match(/version["']?: ["']?(.*?)["']?(?:\s|$)/)&.captures&.[](0) ||
+                   pkg_block.match(/#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)[":]/)&.captures&.[](0)
+          
           if version.nil?
             raise NoMatchingPatternError,
                   "Unable to find the version of \"#{dep_name}\" in #{@yarn_lock_path}"
@@ -60,13 +67,16 @@ module Package
           # - "@babel/runtime@^7.23.1", "@babel/runtime@^7.9.2":
           # For resolutions (exact versions):
           # - "@apollo/client@3.12.5":
-          if version.match?(/[\^~>=]/)
-            # For regular dependencies with version ranges
-            /(?:^|[ "])#{Regexp.escape(dep_name)}@#{Regexp.escape(version)}.*?:.*?(\n\n|\z)/m
-          else
-            # For resolutions with exact versions
-            /(?:^|[ "])#{Regexp.escape(dep_name)}@#{Regexp.escape(version)}":.*?(\n\n|\z)/m
-          end
+          # For both regular dependencies and resolutions
+          # The package might appear in different formats:
+          # 1. As a dependency spec: "@apollo/client@^3.14.0"
+          # 2. As a resolved version: "@apollo/client@3.12.5"
+          # 3. As part of a multi-version spec: "@apollo/client@^3.14.0, @apollo/client@^3.12.5"
+          # 4. With npm prefix: "@apollo/client@npm:3.12.5"
+          # 5. In resolution field: "resolution: \"@apollo/client@npm:3.12.5\""
+          escaped_name = Regexp.escape(dep_name)
+          escaped_version = Regexp.escape(version)
+          /(?:^|[ "])#{escaped_name}@(?:npm:)?(?:#{escaped_version}|[^\s,:"]*#{escaped_version}[^\s,:"]*)[,"]?:.*?(?:\n\n|\z)|resolution: "#{escaped_name}@(?:npm:)?#{escaped_version}"/m
         end
       end
     end
