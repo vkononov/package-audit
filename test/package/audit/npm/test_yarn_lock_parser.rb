@@ -12,57 +12,57 @@ module Package
         end
 
         def test_standard_version_format
-          deps = { "pkg1" => "1.0.0" }
+          deps = { "lodash" => "4.17.0" }
           pkgs = @parser.fetch(deps, {})
-          assert_equal "1.0.0", pkgs.find { |p| p.name == "pkg1" }.version
+          assert_equal "4.17.0", pkgs.find { |p| p.name == "lodash" }.version
         end
 
         def test_caret_version_with_resolution
-          deps = { "pkg2" => "^2.0.0" }
-          resolutions = { "pkg2" => "2.0.0" }
+          deps = { "react" => "^17.0.0" }
+          resolutions = { "react" => "17.0.2" }
           pkgs = @parser.fetch(deps, {}, resolutions)
-          assert_equal "2.0.0", pkgs.find { |p| p.name == "pkg2" }.version
+          assert_equal "17.0.2", pkgs.find { |p| p.name == "react" }.version
         end
 
         def test_tilde_version_with_colon_syntax
-          deps = { "pkg3" => "~3.0.0" }
+          deps = { "express" => "~4.17.0" }
           pkgs = @parser.fetch(deps, {})
-          assert_equal "3.0.0", pkgs.find { |p| p.name == "pkg3" }.version
+          assert_equal "4.17.3", pkgs.find { |p| p.name == "express" }.version
         end
 
         def test_scoped_package_with_npm_prefix
-          deps = { "@scoped/pkg" => "4.0.0" }
+          deps = { "@types/node" => "18.0.0" }
           pkgs = @parser.fetch(deps, {})
-          assert_equal "4.0.0", pkgs.find { |p| p.name == "@scoped/pkg" }.version
+          assert_equal "18.0.0", pkgs.find { |p| p.name == "@types/node" }.version
         end
 
         def test_package_with_resolution_field
-          deps = { "pkg-with-resolution" => "5.0.0" }
-          resolutions = { "pkg-with-resolution" => "5.1.0" }
+          deps = { "@babel/core" => "7.22.0" }
+          resolutions = { "@babel/core" => "7.22.1" }
           pkgs = @parser.fetch(deps, {}, resolutions)
-          assert_equal "5.1.0", pkgs.find { |p| p.name == "pkg-with-resolution" }.version
+          assert_equal "7.22.1", pkgs.find { |p| p.name == "@babel/core" }.version
         end
 
         def test_all_packages_together
           deps = {
-            "pkg1" => "1.0.0",
-            "pkg2" => "^2.0.0",
-            "pkg3" => "~3.0.0",
-            "@scoped/pkg" => "4.0.0",
-            "pkg-with-resolution" => "5.0.0"
+            "lodash" => "4.17.0",
+            "react" => "^17.0.0",
+            "express" => "~4.17.0",
+            "@types/node" => "18.0.0",
+            "@babel/core" => "7.22.0"
           }
           resolutions = {
-            "pkg2" => "2.0.0",
-            "pkg-with-resolution" => "5.1.0"
+            "react" => "17.0.2",
+            "@babel/core" => "7.22.1"
           }
           pkgs = @parser.fetch(deps, {}, resolutions)
 
           assert_equal 5, pkgs.size
-          assert_equal "1.0.0", pkgs.find { |p| p.name == "pkg1" }.version
-          assert_equal "2.0.0", pkgs.find { |p| p.name == "pkg2" }.version
-          assert_equal "3.0.0", pkgs.find { |p| p.name == "pkg3" }.version
-          assert_equal "4.0.0", pkgs.find { |p| p.name == "@scoped/pkg" }.version
-          assert_equal "5.1.0", pkgs.find { |p| p.name == "pkg-with-resolution" }.version
+          assert_equal "4.17.0", pkgs.find { |p| p.name == "lodash" }.version
+          assert_equal "17.0.2", pkgs.find { |p| p.name == "react" }.version
+          assert_equal "4.17.3", pkgs.find { |p| p.name == "express" }.version
+          assert_equal "18.0.0", pkgs.find { |p| p.name == "@types/node" }.version
+          assert_equal "7.22.1", pkgs.find { |p| p.name == "@babel/core" }.version
         end
       end
     end
