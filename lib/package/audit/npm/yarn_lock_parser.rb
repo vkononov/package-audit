@@ -81,7 +81,7 @@ module Package
           # 1. Package name at start of line or after quote
           # 2. Everything up to the next double newline or end of file
           # 3. Handles both compact and expanded formats with dependencies
-          /(?:^|\s|")#{escaped_name}@[^:\n]+"?:[^\n]*(?:\n(?![\n\s]*"|\z)[^\n]*)*(?=\n[\n\s]*"|\z)/m
+          /(?:^|\s|")#{escaped_name}@[^:\n]+"?:[^\n]*(?:\n(?!\s*"|\z)[^\n]*)*(?=\n\s*"|\z)/m
         end
       end
     end
