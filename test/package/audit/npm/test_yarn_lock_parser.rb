@@ -55,6 +55,14 @@ module Package
           assert_package_versions(pkgs)
         end
 
+        def test_git_url_package
+          parser = YarnLockParser.new(File.join(@test_dir, 'git-url.lock'))
+          deps = { '@fullscript/graphql-codegen-object-types' => 'https://github.com/Fullscript/graphql-codegen-object-types.git#2.0.0' }
+          pkgs = parser.fetch(deps, {})
+
+          assert_equal '2.0.0', pkgs.find { |p| p.name == '@fullscript/graphql-codegen-object-types' }.version
+        end
+
         private
 
         def fetch_all_packages

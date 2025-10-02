@@ -39,6 +39,7 @@ module Package
             #{Regexp.escape(dep_name)}@[^:\n]+   # Our package name and version
             (?:[^"\n]*,\s*[^"\n]+)*             # Any following entries
             ["']?:.*?                            # End quote and colon, followed by the rest
+            (?:resolution:.*?)?                  # Optional resolution field
             (?=\n["']|\n\s*\n|\z)               # Until next entry or end of file
           /mx
           blocks = @yarn_lock_file.scan(block_pattern)
@@ -87,7 +88,7 @@ module Package
         end
 
         def find_spec_version(dep_name, pkg_block)
-          pattern = /^.*?#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']?(?:,|\s*:)/m
+          pattern = %r{^.*?#{Regexp.escape(dep_name)}@(?:npm:|https://[^#]+#)?([\d.]+)["']?(?:,|\s*:)}m
           pkg_block.match(pattern)&.captures&.[](0)
         end
 
