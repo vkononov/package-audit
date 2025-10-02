@@ -32,7 +32,15 @@ module Package
 
         def fetch_package_block(dep_name, expected_version)
           # First find all blocks that contain our package name
-          block_pattern = /^["']?(?:[^"\n]+,\s*)*#{Regexp.escape(dep_name)}@[^:\n]+(?:[^"\n]*,\s*[^"\n]+)*["']?:.*?(?=\n["']|\n\s*\n|\z)/m
+          # Match package name and version spec, handling multiple comma-separated entries
+          block_pattern = /
+            ^["']?                                # Start of line with optional quote
+            (?:[^"\n]+,\s*)*                     # Any previous entries in a comma-separated list
+            #{Regexp.escape(dep_name)}@[^:\n]+   # Our package name and version
+            (?:[^"\n]*,\s*[^"\n]+)*             # Any following entries
+            ["']?:.*?                            # End quote and colon, followed by the rest
+            (?=\n["']|\n\s*\n|\z)               # Until next entry or end of file
+          /mx
           blocks = @yarn_lock_file.scan(block_pattern)
 
           raise NoMatchingPatternError, "Unable to find \"#{dep_name}\" in #{@yarn_lock_path}" if blocks.empty?
@@ -52,20 +60,7 @@ module Package
           # 1. resolution field (for overrides)
           # 2. version field (both quoted and unquoted)
           # 3. package spec
-          # Try to find version in this order:
-          # 1. resolution field (for overrides)
-          # 2. version field (both quoted and unquoted)
-          # 3. package spec
-          version = if (resolution = pkg_block.match(/resolution:.*?["']#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']/)&.captures&.[](0))
-                      resolution
-                    elsif (version_field = pkg_block.match(/version["']?\s*["']?([\d.]+)["']?(?:\s|$)/)&.captures&.[](0))
-                      version_field
-                    elsif (version_field = pkg_block.match(/version"?\s*"?([\d.]+)"?(?:\s|$)/)&.captures&.[](0))
-                      version_field
-                    else
-                      # Try to find the version in the package spec line
-                      pkg_block.match(/^.*?#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']?(?:,|\s*:)/m)&.captures&.[](0)
-                    end
+          version = extract_version_from_block(dep_name, pkg_block)
 
           if version.nil?
             raise NoMatchingPatternError,
@@ -73,6 +68,27 @@ module Package
           end
 
           version || '0.0.0.0'
+        end
+
+        def extract_version_from_block(dep_name, pkg_block)
+          find_resolution_version(dep_name, pkg_block) ||
+            find_version_field(pkg_block) ||
+            find_spec_version(dep_name, pkg_block)
+        end
+
+        def find_resolution_version(dep_name, pkg_block)
+          pattern = /resolution:.*?["']#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']/
+          pkg_block.match(pattern)&.captures&.[](0)
+        end
+
+        def find_version_field(pkg_block)
+          pattern = /version["']?\s*["']?([\d.]+)["']?(?:\s|$)/
+          pkg_block.match(pattern)&.captures&.[](0)
+        end
+
+        def find_spec_version(dep_name, pkg_block)
+          pattern = /^.*?#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']?(?:,|\s*:)/m
+          pkg_block.match(pattern)&.captures&.[](0)
         end
 
         def regex_pattern_for_package(dep_name, _version)

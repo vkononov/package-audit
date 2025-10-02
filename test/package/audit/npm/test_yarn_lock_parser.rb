@@ -49,6 +49,15 @@ module Package
         end
 
         def test_all_packages_together
+          pkgs = fetch_all_packages
+
+          assert_equal 5, pkgs.size
+          assert_package_versions(pkgs)
+        end
+
+        private
+
+        def fetch_all_packages
           deps = {
             'lodash' => '4.17.0',
             'react' => '^17.0.0',
@@ -60,14 +69,27 @@ module Package
             'react' => '17.0.2',
             '@babel/core' => '7.22.1'
           }
-          pkgs = @parser.fetch(deps, {}, resolutions)
+          @parser.fetch(deps, {}, resolutions)
+        end
 
-          assert_equal 5, pkgs.size
-          assert_equal '4.17.0', pkgs.find { |p| p.name == 'lodash' }.version
-          assert_equal '17.0.2', pkgs.find { |p| p.name == 'react' }.version
-          assert_equal '4.17.3', pkgs.find { |p| p.name == 'express' }.version
-          assert_equal '18.0.0', pkgs.find { |p| p.name == '@types/node' }.version
-          assert_equal '7.22.1', pkgs.find { |p| p.name == '@babel/core' }.version
+        def assert_package_versions(pkgs)
+          expected_versions = {
+            'lodash' => '4.17.0',
+            'react' => '17.0.2',
+            'express' => '4.17.3',
+            '@types/node' => '18.0.0',
+            '@babel/core' => '7.22.1'
+          }
+
+          expected_versions.each do |name, version|
+            assert_package_version(pkgs, name, version)
+          end
+        end
+
+        def assert_package_version(pkgs, name, version)
+          pkg = pkgs.find { |p| p.name == name }
+
+          assert_equal version, pkg.version
         end
       end
     end
