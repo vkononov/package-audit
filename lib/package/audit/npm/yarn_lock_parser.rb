@@ -31,13 +31,18 @@ module Package
         private
 
         def fetch_package_block(dep_name, expected_version)
-          regex = regex_pattern_for_package(dep_name, expected_version)
-          blocks = @yarn_lock_file.match(regex)
-          if blocks.nil? || blocks[0].nil?
+          # First find all blocks that contain our package name
+          block_pattern = /^["']?(?:[^"\n]+,\s*)*#{Regexp.escape(dep_name)}@[^:\n]+(?:[^"\n]*,\s*[^"\n]+)*["']?:.*?(?=\n["']|\n\s*\n|\z)/m
+          blocks = @yarn_lock_file.scan(block_pattern)
+          
+          if blocks.empty?
             raise NoMatchingPatternError, "Unable to find \"#{dep_name}\" in #{@yarn_lock_path}"
           end
 
-          blocks[0] || ''
+          # If we have multiple blocks, try to find the one with our version
+          version_pattern = /#{Regexp.escape(dep_name)}@(?:npm:)?#{Regexp.escape(expected_version)}["']?(?:,|:)/
+          matching_block = blocks.find { |block| block.match?(version_pattern) } || blocks.first
+          matching_block
         end
 
         def fetch_package_version(dep_name, pkg_block)
@@ -46,8 +51,24 @@ module Package
           # 2. version: 1.2.3      - unquoted version
           # 3. "pkg@1.2.3":        - version in package spec
           # 4. "pkg@npm:1.2.3":    - version with npm prefix
-          version = pkg_block.match(/version["']?: ["']?(.*?)["']?(?:\s|$)/)&.captures&.[](0) ||
-                   pkg_block.match(/#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)[":]/)&.captures&.[](0)
+          # Try to find version in this order:
+          # 1. resolution field (for overrides)
+          # 2. version field (both quoted and unquoted)
+          # 3. package spec
+          # Try to find version in this order:
+          # 1. resolution field (for overrides)
+          # 2. version field (both quoted and unquoted)
+          # 3. package spec
+          version = if (resolution = pkg_block.match(/resolution:.*?["']#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']/)&.captures&.[](0))
+                     resolution
+                   elsif (version_field = pkg_block.match(/version["']?\s*["']?([\d.]+)["']?(?:\s|$)/)&.captures&.[](0))
+                     version_field
+                   elsif (version_field = pkg_block.match(/version["]?\s*["]?([\d.]+)["]?(?:\s|$)/)&.captures&.[](0))
+                     version_field
+                   else
+                     # Try to find the version in the package spec line
+                     pkg_block.match(/^.*?#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']?(?:,|\s*:)/m)&.captures&.[](0)
+                   end
           
           if version.nil?
             raise NoMatchingPatternError,
@@ -81,7 +102,29 @@ module Package
           # 1. Package name at start of line or after quote
           # 2. Everything up to the next double newline or end of file
           # 3. Handles both compact and expanded formats with dependencies
-          /(?:^|\s|")#{escaped_name}@[^:\n]+"?:[^\n]*(?:\n(?!\s*"|\z)[^\n]*)*(?=\n\s*"|\z)/m
+          # Match both old and new yarn.lock formats:
+          # Old: pkg@^1.0.0:
+          # New: "pkg@^1.0.0":
+          # The pattern matches the entire block including any indented lines
+          # We look for:
+          # 1. Start of line
+          # 2. Optional quote
+          # 3. Package name
+          # 4. @ symbol
+          # 5. Version spec (anything up to : or ")
+          # 6. Optional quote and colon
+          # 7. Rest of the block until next entry or end of file
+          # The pattern needs to match:
+          # 1. Basic format: pkg@^1.0.0:
+          # 2. Quoted format: "pkg@^1.0.0":
+          # 3. Multiple specs: "pkg@1.0.0", "pkg@npm:1.0.0":
+          # 4. Scoped packages: "@scope/pkg@1.0.0":
+          # Match any of:
+          # 1. Basic: pkg@^1.0.0:
+          # 2. Quoted: "pkg@^1.0.0":
+          # 3. Multiple: "pkg@1.0.0", "pkg@npm:1.0.0":
+          # 4. Scoped: "@scope/pkg@1.0.0":
+          /^(?:["']?#{escaped_name}@[^,\n:"]+(?:,\s*["']#{escaped_name}@[^,\n:"]+)*["']?:.*?)(?=\n["']|\n\s*\n|\z)/m
         end
       end
     end
