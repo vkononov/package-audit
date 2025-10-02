@@ -82,7 +82,8 @@ module Package
         def fetch_from_lock_file
           default_deps, dev_deps, resolutions = fetch_from_package_json
           if File.exist?("#{@dir}/#{Const::File::YARN_LOCK}")
-            YarnLockParser.new("#{@dir}/#{Const::File::YARN_LOCK}").fetch(default_deps || {}, dev_deps || {}, resolutions || {})
+            YarnLockParser.new("#{@dir}/#{Const::File::YARN_LOCK}").fetch(default_deps || {}, dev_deps || {},
+                                                                          resolutions || {})
           else
             []
           end

@@ -17,6 +17,7 @@ module Package
         def test_local_dependency_detection_file_protocol
           # Test file: protocol variations
           node_collection = create_node_collection
+
           assert node_collection.send(:local_dependency?, 'file:./local-module')
           assert node_collection.send(:local_dependency?, 'file:../shared-module')
           assert node_collection.send(:local_dependency?, 'file:/absolute/path/to/module')
@@ -26,6 +27,7 @@ module Package
         def test_local_dependency_detection_link_protocol
           # Test link: protocol
           node_collection = create_node_collection
+
           assert node_collection.send(:local_dependency?, 'link:./local-module')
           assert node_collection.send(:local_dependency?, 'link:../shared-module')
         end
@@ -33,6 +35,7 @@ module Package
         def test_local_dependency_detection_relative_paths
           # Test relative paths
           node_collection = create_node_collection
+
           assert node_collection.send(:local_dependency?, './local-module')
           assert node_collection.send(:local_dependency?, '../shared-module')
           assert node_collection.send(:local_dependency?, './some/nested/path')
@@ -42,6 +45,7 @@ module Package
         def test_local_dependency_detection_git_with_file
           # Test git repositories with local file paths
           node_collection = create_node_collection
+
           assert node_collection.send(:local_dependency?, 'git+file:./local-git-repo')
           assert node_collection.send(:local_dependency?, 'git+file:../shared-git-repo')
           assert node_collection.send(:local_dependency?, 'git+file:///absolute/path/to/repo')
@@ -50,6 +54,7 @@ module Package
         def test_local_dependency_detection_mixed_file_paths
           # Test packages with "file:" somewhere in the string
           node_collection = create_node_collection
+
           assert node_collection.send(:local_dependency?, 'some-package-with-file:stuff')
           assert node_collection.send(:local_dependency?, 'git+https://github.com/user/repo.git#file:path')
         end
@@ -57,6 +62,7 @@ module Package
         def test_normal_dependency_detection
           # Test that normal dependencies are not filtered
           node_collection = create_node_collection
+
           refute node_collection.send(:local_dependency?, '^1.0.0')
           refute node_collection.send(:local_dependency?, '~2.3.4')
           refute node_collection.send(:local_dependency?, '>=1.0.0')
@@ -70,6 +76,7 @@ module Package
         def test_git_remote_repositories_not_filtered
           # Test that remote git repositories are not filtered
           node_collection = create_node_collection
+
           refute node_collection.send(:local_dependency?, 'git+https://github.com/user/repo.git')
           refute node_collection.send(:local_dependency?, 'git+ssh://git@github.com/user/repo.git')
           refute node_collection.send(:local_dependency?, 'git://github.com/user/repo.git')
@@ -149,6 +156,7 @@ module Package
         def test_local_dependency_edge_cases
           # Test edge cases
           node_collection = create_node_collection
+
           refute node_collection.send(:local_dependency?, '')
           refute node_collection.send(:local_dependency?, nil)
 
@@ -161,26 +169,26 @@ module Package
           test_dir = File.join(@base_dir, 'test/files/with-resolutions')
           node_collection = create_node_collection(test_dir)
           default_deps, dev_deps, resolutions = node_collection.send(:fetch_from_package_json)
-          
+
           # Check dependencies are read correctly
-          assert_equal({"@apollo/client" => "^3.14.0", "react" => "^18.0.0"}, default_deps)
-          assert_equal({}, dev_deps)
-          
+          assert_equal({'@apollo/client' => '^3.14.0', 'react' => '^18.0.0'}, default_deps)
+          assert_empty(dev_deps)
+
           # Check resolutions are read correctly
-          assert_equal({"@apollo/client" => "3.12.5", "react" => "18.2.0"}, resolutions)
+          assert_equal({'@apollo/client' => '3.12.5', 'react' => '18.2.0'}, resolutions)
         end
 
         def test_fetch_from_lock_file_with_resolutions
           test_dir = File.join(@base_dir, 'test/files/with-resolutions')
           node_collection = create_node_collection(test_dir)
           pkgs = node_collection.send(:fetch_from_lock_file)
-          
+
           # Check that packages use resolved versions
-          apollo_client = pkgs.find { |p| p.name == "@apollo/client" }
-          react = pkgs.find { |p| p.name == "react" }
-          
-          assert_equal "3.12.5", apollo_client.version
-          assert_equal "18.2.0", react.version
+          apollo_client = pkgs.find { |p| p.name == '@apollo/client' }
+          react = pkgs.find { |p| p.name == 'react' }
+
+          assert_equal '3.12.5', apollo_client.version
+          assert_equal '18.2.0', react.version
         end
       end
     end
