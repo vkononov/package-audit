@@ -15,6 +15,11 @@ module Package
             # Check if there's a resolution override for this package
             version_to_check = resolutions[dep_name] || expected_version
 
+            # Extract version from patch URL if needed
+            if version_to_check.start_with?('patch:')
+              version_to_check = version_to_check.match(/patch:.*?@npm%3A([\d.-]+)#/)&.captures&.[](0) || version_to_check
+            end
+
             pkg_block = fetch_package_block(dep_name, version_to_check)
             version = fetch_package_version(dep_name, pkg_block)
             pks = Package.new(dep_name.to_s, version, 'node')
@@ -36,6 +41,7 @@ module Package
           block_pattern = /
             ^["']?                                # Start of line with optional quote
             (?:[^"\n]+,\s*)*                     # Any previous entries in a comma-separated list
+            (?:patch:)?                          # Optional patch prefix
             #{Regexp.escape(dep_name)}@[^:\n]+   # Our package name and version
             (?:[^"\n]*,\s*[^"\n]+)*             # Any following entries
             ["']?:.*?                            # End quote and colon, followed by the rest
@@ -47,7 +53,7 @@ module Package
           raise NoMatchingPatternError, "Unable to find \"#{dep_name}\" in #{@yarn_lock_path}" if blocks.empty?
 
           # If we have multiple blocks, try to find the one with our version
-          version_pattern = /#{Regexp.escape(dep_name)}@(?:npm:)?#{Regexp.escape(expected_version)}["']?(?:,|:)/
+          version_pattern = /(?:patch:)?#{Regexp.escape(dep_name)}@(?:npm:)?#{Regexp.escape(expected_version)}["']?(?:,|:)/
           blocks.find { |block| block.match?(version_pattern) } || blocks.first
         end
 
@@ -78,17 +84,17 @@ module Package
         end
 
         def find_resolution_version(dep_name, pkg_block)
-          pattern = /resolution:.*?["']#{Regexp.escape(dep_name)}@(?:npm:)?([\d.]+)["']/
+          pattern = /resolution:.*?["']#{Regexp.escape(dep_name)}@(?:npm:)?(?:patch:#{Regexp.escape(dep_name)}@npm%3A)?([\d.-]+(?:-(?:beta|rc|dev)\.\d+(?:\.\d+)?)?)(?:&hash=[a-f0-9]+)?["']/
           pkg_block.match(pattern)&.captures&.[](0)
         end
 
         def find_version_field(pkg_block)
-          pattern = /version["']?\s*["']?([\d.]+)["']?(?:\s|$)/
+          pattern = /version["']?\s*["']?([\d.-]+(?:-(?:beta|rc|dev)\.\d+(?:\.\d+)?)?)(?:&hash=[a-f0-9]+)?["']?(?:\s|$)/
           pkg_block.match(pattern)&.captures&.[](0)
         end
 
         def find_spec_version(dep_name, pkg_block)
-          pattern = %r{^.*?#{Regexp.escape(dep_name)}@(?:npm:|https://[^#]+#)?([\d.]+)["']?(?:,|\s*:)}m
+          pattern = %r{^.*?#{Regexp.escape(dep_name)}@(?:npm:|https://[^#]+#)?(?:patch:#{Regexp.escape(dep_name)}@npm%3A)?(?:v)?([\d.-]+(?:-(?:beta|rc|dev)\.\d+(?:\.\d+)?)?)(?:&hash=[a-f0-9]+)?["']?(?:,|\s*:)}m
           pkg_block.match(pattern)&.captures&.[](0)
         end
 

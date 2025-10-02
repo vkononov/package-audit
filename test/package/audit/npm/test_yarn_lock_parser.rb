@@ -63,6 +63,54 @@ module Package
           assert_equal '2.0.0', pkgs.find { |p| p.name == '@fullscript/graphql-codegen-object-types' }.version
         end
 
+        def test_hyphenated_version
+          parser = YarnLockParser.new(File.join(@test_dir, 'hyphenated.lock'))
+          deps = { '@rails/ujs' => '6.1.4-1' }
+          pkgs = parser.fetch(deps, {})
+
+          assert_equal '6.1.4-1', pkgs.find { |p| p.name == '@rails/ujs' }.version
+        end
+
+        def test_git_url_with_v_prefix
+          parser = YarnLockParser.new(File.join(@test_dir, 'git-url-with-v.lock'))
+          deps = { 'aviary-tokens' => 'https://github.com/Fullscript/aviary-tokens.git#v1.3.1' }
+          pkgs = parser.fetch(deps, {})
+
+          assert_equal '1.3.1', pkgs.find { |p| p.name == 'aviary-tokens' }.version
+        end
+
+        def test_beta_version
+          parser = YarnLockParser.new(File.join(@test_dir, 'beta.lock'))
+          deps = { 'body-scroll-lock' => '4.0.0-beta.0' }
+          pkgs = parser.fetch(deps, {})
+
+          assert_equal '4.0.0-beta.0', pkgs.find { |p| p.name == 'body-scroll-lock' }.version
+        end
+
+        def test_rc_version
+          parser = YarnLockParser.new(File.join(@test_dir, 'rc.lock'))
+          deps = { 'cheerio' => '1.0.0-rc.12' }
+          pkgs = parser.fetch(deps, {})
+
+          assert_equal '1.0.0-rc.12', pkgs.find { |p| p.name == 'cheerio' }.version
+        end
+
+        def test_dev_version
+          parser = YarnLockParser.new(File.join(@test_dir, 'dev.lock'))
+          deps = { '@typescript/native-preview' => '7.0.0-dev.20250703.1' }
+          pkgs = parser.fetch(deps, {})
+
+          assert_equal '7.0.0-dev.20250703.1', pkgs.find { |p| p.name == '@typescript/native-preview' }.version
+        end
+
+        def test_patch_version
+          parser = YarnLockParser.new(File.join(@test_dir, 'patch.lock'))
+          deps = { 'code-complexity' => '4.4.4' }
+          pkgs = parser.fetch(deps, {})
+
+          assert_equal '4.4.4', pkgs.find { |p| p.name == 'code-complexity' }.version
+        end
+
         private
 
         def fetch_all_packages
