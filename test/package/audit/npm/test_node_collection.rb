@@ -7,62 +7,73 @@ module Package
     module Npm
       class TestNodeCollection < Minitest::Test
         def setup
-          @node_collection = NodeCollection.new(Dir.pwd, :all)
+          @base_dir = Dir.pwd
+        end
+
+        def create_node_collection(dir = @base_dir)
+          NodeCollection.new(dir, :all)
         end
 
         def test_local_dependency_detection_file_protocol
           # Test file: protocol variations
-          assert @node_collection.send(:local_dependency?, 'file:./local-module')
-          assert @node_collection.send(:local_dependency?, 'file:../shared-module')
-          assert @node_collection.send(:local_dependency?, 'file:/absolute/path/to/module')
-          assert @node_collection.send(:local_dependency?, 'file:///absolute/path/to/module')
+          node_collection = create_node_collection
+          assert node_collection.send(:local_dependency?, 'file:./local-module')
+          assert node_collection.send(:local_dependency?, 'file:../shared-module')
+          assert node_collection.send(:local_dependency?, 'file:/absolute/path/to/module')
+          assert node_collection.send(:local_dependency?, 'file:///absolute/path/to/module')
         end
 
         def test_local_dependency_detection_link_protocol
           # Test link: protocol
-          assert @node_collection.send(:local_dependency?, 'link:./local-module')
-          assert @node_collection.send(:local_dependency?, 'link:../shared-module')
+          node_collection = create_node_collection
+          assert node_collection.send(:local_dependency?, 'link:./local-module')
+          assert node_collection.send(:local_dependency?, 'link:../shared-module')
         end
 
         def test_local_dependency_detection_relative_paths
           # Test relative paths
-          assert @node_collection.send(:local_dependency?, './local-module')
-          assert @node_collection.send(:local_dependency?, '../shared-module')
-          assert @node_collection.send(:local_dependency?, './some/nested/path')
-          assert @node_collection.send(:local_dependency?, '../some/nested/path')
+          node_collection = create_node_collection
+          assert node_collection.send(:local_dependency?, './local-module')
+          assert node_collection.send(:local_dependency?, '../shared-module')
+          assert node_collection.send(:local_dependency?, './some/nested/path')
+          assert node_collection.send(:local_dependency?, '../some/nested/path')
         end
 
         def test_local_dependency_detection_git_with_file
           # Test git repositories with local file paths
-          assert @node_collection.send(:local_dependency?, 'git+file:./local-git-repo')
-          assert @node_collection.send(:local_dependency?, 'git+file:../shared-git-repo')
-          assert @node_collection.send(:local_dependency?, 'git+file:///absolute/path/to/repo')
+          node_collection = create_node_collection
+          assert node_collection.send(:local_dependency?, 'git+file:./local-git-repo')
+          assert node_collection.send(:local_dependency?, 'git+file:../shared-git-repo')
+          assert node_collection.send(:local_dependency?, 'git+file:///absolute/path/to/repo')
         end
 
         def test_local_dependency_detection_mixed_file_paths
           # Test packages with "file:" somewhere in the string
-          assert @node_collection.send(:local_dependency?, 'some-package-with-file:stuff')
-          assert @node_collection.send(:local_dependency?, 'git+https://github.com/user/repo.git#file:path')
+          node_collection = create_node_collection
+          assert node_collection.send(:local_dependency?, 'some-package-with-file:stuff')
+          assert node_collection.send(:local_dependency?, 'git+https://github.com/user/repo.git#file:path')
         end
 
         def test_normal_dependency_detection
           # Test that normal dependencies are not filtered
-          refute @node_collection.send(:local_dependency?, '^1.0.0')
-          refute @node_collection.send(:local_dependency?, '~2.3.4')
-          refute @node_collection.send(:local_dependency?, '>=1.0.0')
-          refute @node_collection.send(:local_dependency?, '1.0.0')
-          refute @node_collection.send(:local_dependency?, 'latest')
-          refute @node_collection.send(:local_dependency?, 'next')
-          refute @node_collection.send(:local_dependency?, 'beta')
-          refute @node_collection.send(:local_dependency?, '1.0.0-alpha.1')
+          node_collection = create_node_collection
+          refute node_collection.send(:local_dependency?, '^1.0.0')
+          refute node_collection.send(:local_dependency?, '~2.3.4')
+          refute node_collection.send(:local_dependency?, '>=1.0.0')
+          refute node_collection.send(:local_dependency?, '1.0.0')
+          refute node_collection.send(:local_dependency?, 'latest')
+          refute node_collection.send(:local_dependency?, 'next')
+          refute node_collection.send(:local_dependency?, 'beta')
+          refute node_collection.send(:local_dependency?, '1.0.0-alpha.1')
         end
 
         def test_git_remote_repositories_not_filtered
           # Test that remote git repositories are not filtered
-          refute @node_collection.send(:local_dependency?, 'git+https://github.com/user/repo.git')
-          refute @node_collection.send(:local_dependency?, 'git+ssh://git@github.com/user/repo.git')
-          refute @node_collection.send(:local_dependency?, 'git://github.com/user/repo.git')
-          refute @node_collection.send(:local_dependency?, 'https://github.com/user/repo/archive/master.tar.gz')
+          node_collection = create_node_collection
+          refute node_collection.send(:local_dependency?, 'git+https://github.com/user/repo.git')
+          refute node_collection.send(:local_dependency?, 'git+ssh://git@github.com/user/repo.git')
+          refute node_collection.send(:local_dependency?, 'git://github.com/user/repo.git')
+          refute node_collection.send(:local_dependency?, 'https://github.com/user/repo/archive/master.tar.gz')
         end
 
         def test_filter_local_dependencies_method # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
@@ -79,7 +90,8 @@ module Package
             'local-relative' => './utils'
           }
 
-          filtered = @node_collection.send(:filter_local_dependencies, dependencies)
+          node_collection = create_node_collection
+          filtered = node_collection.send(:filter_local_dependencies, dependencies)
 
           # Should keep normal dependencies
           assert filtered.key?('normal-package')
@@ -100,7 +112,8 @@ module Package
         end
 
         def test_filter_local_dependencies_with_empty_hash
-          filtered = @node_collection.send(:filter_local_dependencies, {})
+          node_collection = create_node_collection
+          filtered = node_collection.send(:filter_local_dependencies, {})
 
           assert_equal 0, filtered.size
         end
@@ -113,7 +126,8 @@ module Package
             'local4' => 'git+file:./local4'
           }
 
-          filtered = @node_collection.send(:filter_local_dependencies, all_local)
+          node_collection = create_node_collection
+          filtered = node_collection.send(:filter_local_dependencies, all_local)
 
           assert_equal 0, filtered.size
         end
@@ -126,19 +140,47 @@ module Package
             'package4' => 'git+https://github.com/user/repo.git'
           }
 
-          filtered = @node_collection.send(:filter_local_dependencies, all_normal)
+          node_collection = create_node_collection
+          filtered = node_collection.send(:filter_local_dependencies, all_normal)
 
           assert_equal 4, filtered.size
         end
 
         def test_local_dependency_edge_cases
           # Test edge cases
-          refute @node_collection.send(:local_dependency?, '')
-          refute @node_collection.send(:local_dependency?, nil)
+          node_collection = create_node_collection
+          refute node_collection.send(:local_dependency?, '')
+          refute node_collection.send(:local_dependency?, nil)
 
           # Test symbols (should be converted to string)
-          assert @node_collection.send(:local_dependency?, :'file:./local')
-          refute @node_collection.send(:local_dependency?, :'^1.0.0')
+          assert node_collection.send(:local_dependency?, :'file:./local')
+          refute node_collection.send(:local_dependency?, :'^1.0.0')
+        end
+
+        def test_fetch_from_package_json_with_resolutions
+          test_dir = File.join(@base_dir, 'test/files/with-resolutions')
+          node_collection = create_node_collection(test_dir)
+          default_deps, dev_deps, resolutions = node_collection.send(:fetch_from_package_json)
+          
+          # Check dependencies are read correctly
+          assert_equal({"@apollo/client" => "^3.14.0", "react" => "^18.0.0"}, default_deps)
+          assert_equal({}, dev_deps)
+          
+          # Check resolutions are read correctly
+          assert_equal({"@apollo/client" => "3.12.5", "react" => "18.2.0"}, resolutions)
+        end
+
+        def test_fetch_from_lock_file_with_resolutions
+          test_dir = File.join(@base_dir, 'test/files/with-resolutions')
+          node_collection = create_node_collection(test_dir)
+          pkgs = node_collection.send(:fetch_from_lock_file)
+          
+          # Check that packages use resolved versions
+          apollo_client = pkgs.find { |p| p.name == "@apollo/client" }
+          react = pkgs.find { |p| p.name == "react" }
+          
+          assert_equal "3.12.5", apollo_client.version
+          assert_equal "18.2.0", react.version
         end
       end
     end
