@@ -2,22 +2,22 @@
 # yarn lockfile v1
 
 
-"js-tokens@8.0.0":
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-8.0.0.tgz#5dbe2cdfa9afc93251d3a77bf18c3ad6fa8a4de4"
-  integrity sha512-PC7MzqInq9OqKyTXfIvQNcjMkODJYC8A17kAaQgeW79yfhqTWSOfjHYQ2mDDcwJ96Iibtwkfh0C7R/OvqPlgVA==
+"js-tokens@npm:8.0.0", "js-tokens@8.0.0":
+  version: "8.0.0"
+  resolved: "https://registry.yarnpkg.com/js-tokens/-/js-tokens-8.0.0.tgz#5dbe2cdfa9afc93251d3a77bf18c3ad6fa8a4de4"
+  integrity: sha512-PC7MzqInq9OqKyTXfIvQNcjMkODJYC8A17kAaQgeW79yfhqTWSOfjHYQ2mDDcwJ96Iibtwkfh0C7R/OvqPlgVA==
 
-"lodash@^4.17.20":
-  version "4.17.21"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
-  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
+"lodash@npm:4.17.21", "lodash@^4.17.20":
+  version: "4.17.21"
+  resolved: "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-"@testing-library/jest-dom@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-6.0.0.tgz#d2ba5a3fd13724d5966b3f8cd24d2cedcab4fa76"
-  integrity sha512-Ye2R3+/oM27jir8CzYPmuWdavTaKwNZcu0d22L9pO/vnOYE0wmrtpw79TQJa8H6gV8/i7yd+pLaqeLlA0rTMfg==
+"@testing-library/jest-dom@npm:6.0.0":
+  version: "6.0.0"
+  resolved: "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-6.0.0.tgz#d2ba5a3fd13724d5966b3f8cd24d2cedcab4fa76"
+  integrity: sha512-Ye2R3+/oM27jir8CzYPmuWdavTaKwNZcu0d22L9pO/vnOYE0wmrtpw79TQJa8H6gV8/i7yd+pLaqeLlA0rTMfg==
 
-"worker-factory@^7.0.9":
-  version "7.0.12"
-  resolved "https://registry.yarnpkg.com/worker-factory/-/worker-factory-7.0.12.tgz#58fab20c4112cb4432ec2ead8a8d4d588c14e80c"
-  integrity sha512-1MKEmzrkl5vrLNYwipD3s9OTQHBUE9wpamEuycIy3yKaZmBdf3vkTBEKemn4B8vLv2P8yTJOLVJ5mxpFjeToZg==
+"worker-factory@npm:7.0.12", "worker-factory@^7.0.9":
+  version: "7.0.12"
+  resolved: "https://registry.yarnpkg.com/worker-factory/-/worker-factory-7.0.12.tgz#58fab20c4112cb4432ec2ead8a8d4d588c14e80c"
+  integrity: sha512-1MKEmzrkl5vrLNYwipD3s9OTQHBUE9wpamEuycIy3yKaZmBdf3vkTBEKemn4B8vLv2P8yTJOLVJ5mxpFjeToZg==

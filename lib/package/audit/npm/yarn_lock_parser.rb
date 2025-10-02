@@ -75,8 +75,13 @@ module Package
           # 4. With npm prefix: "@apollo/client@npm:3.12.5"
           # 5. In resolution field: "resolution: \"@apollo/client@npm:3.12.5\""
           escaped_name = Regexp.escape(dep_name)
-          escaped_version = Regexp.escape(version)
-          /(?:^|[ "])#{escaped_name}@(?:npm:)?(?:#{escaped_version}|[^\s,:"]*#{escaped_version}[^\s,:"]*)[,"]?:.*?(?:\n\n|\z)|resolution: "#{escaped_name}@(?:npm:)?#{escaped_version}"/m
+          # Look for any entry that starts with our package name and includes the version
+          # We match the entire block and let fetch_package_version handle version extraction
+          # The pattern matches:
+          # 1. Package name at start of line or after quote
+          # 2. Everything up to the next double newline or end of file
+          # 3. Handles both compact and expanded formats with dependencies
+          /(?:^|\s|")#{escaped_name}@[^:\n]+"?:[^\n]*(?:\n(?![\n\s]*"|\z)[^\n]*)*(?=\n[\n\s]*"|\z)/m
         end
       end
     end

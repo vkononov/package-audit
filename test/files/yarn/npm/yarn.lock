@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"js-tokens@^8.0.1":
-  "version" "8.0.1"
-  "resolved" "https://registry.npmjs.org/js-tokens/-/js-tokens-8.0.1.tgz"
-  "integrity" "sha512-3AGrZT6tuMm1ZWWn9mLXh7XMfi2YtiLNPALCVxBCiUVq0LD1OQMxV/AdS/s7rLJU5o9i/jBZw/N4vXXL5dm29A=="
+"js-tokens@npm:8.0.1", "js-tokens@^8.0.1":
+  version: "8.0.1"
+  resolved: "https://registry.npmjs.org/js-tokens/-/js-tokens-8.0.1.tgz"
+  integrity: "sha512-3AGrZT6tuMm1ZWWn9mLXh7XMfi2YtiLNPALCVxBCiUVq0LD1OQMxV/AdS/s7rLJU5o9i/jBZw/N4vXXL5dm29A=="

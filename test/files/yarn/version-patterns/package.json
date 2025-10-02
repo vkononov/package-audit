@@ -1,0 +1,16 @@
+{
+  "name": "version-patterns-test",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "pkg1": "1.0.0",
+    "pkg2": "^2.0.0",
+    "pkg3": "~3.0.0",
+    "@scoped/pkg": "4.0.0",
+    "pkg-with-resolution": "5.0.0"
+  },
+  "resolutions": {
+    "pkg2": "npm:2.0.0",
+    "pkg-with-resolution": "npm:5.1.0"
+  }
+}
