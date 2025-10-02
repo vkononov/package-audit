@@ -21,7 +21,7 @@ module Package
 
               json_package = JSON.parse(response.body, symbolize_names: true)
               update_meta_data(package, json_package)
-            rescue Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout => e
+            rescue Net::OpenTimeout, Net::ReadTimeout => e
               warn "Warning: Network timeout while fetching metadata for #{package.name}: #{e.message}"
               Thread.current[:exception] = e
             rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
@@ -38,7 +38,7 @@ module Package
             next unless thread[:exception]
 
             case thread[:exception]
-            when Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH # rubocop:disable Layout/LineLength
+            when Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH # rubocop:disable Layout/LineLength
               network_errors << thread[:exception]
             else
               raise thread[:exception]
