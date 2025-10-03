@@ -1,59 +1,88 @@
 require 'json'
 require 'net/http'
 require 'socket'
+require 'openssl'
 
 module Package
   module Audit
     module Npm
       class NpmMetaData
         REGISTRY_URL = 'https://registry.npmjs.org'
+        BATCH_SIZE = 10  # Process 10 packages at a time
+        MAX_RETRIES = 3  # Maximum number of retries per request
+        INITIAL_RETRY_DELAY = 1 # Initial retry delay in seconds
+        TIMEOUT = 10 # Timeout in seconds
 
-        def initialize(packages)
-          @packages = packages
-        end
+      def initialize(packages)
+        @packages = packages
+      end
 
-        def fetch # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
-          threads = @packages.map do |package|
+      def fetch # rubocop:disable Metrics/MethodLength
+        network_errors = []
+
+        @packages.each_slice(BATCH_SIZE) do |batch|
+          threads = batch.map do |package|
             Thread.new do
-              response = Net::HTTP.get_response(URI.parse("#{REGISTRY_URL}/#{package.name}"))
-              raise "Unable to fetch meta data for #{package.name} from #{REGISTRY_URL} (#{response.class})" unless
-                response.is_a?(Net::HTTPSuccess)
-
-              json_package = JSON.parse(response.body, symbolize_names: true)
-              update_meta_data(package, json_package)
-            rescue Net::OpenTimeout, Net::ReadTimeout => e
-              warn "Warning: Network timeout while fetching metadata for #{package.name}: #{e.message}"
-              Thread.current[:exception] = e
-            rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-              warn "Warning: Network error while fetching metadata for #{package.name}: #{e.message}"
-              Thread.current[:exception] = e
-            rescue StandardError => e
-              Thread.current[:exception] = e
+              fetch_package_metadata(package, network_errors)
             end
           end
 
-          network_errors = []
-          threads.each do |thread|
-            thread.join
-            next unless thread[:exception]
-
-            case thread[:exception]
-            when Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH
-              network_errors << thread[:exception]
-            else
-              raise thread[:exception]
-            end
-          end
-
-          unless network_errors.empty?
-            warn "Warning: #{network_errors.size} network error(s) occurred while fetching package metadata."
-            warn 'Some packages may not show complete version information.'
-          end
-
-          @packages
+          threads.each(&:join)
+          sleep(0.1) # Small delay between batches to avoid overwhelming the server
         end
 
-        private
+        unless network_errors.empty?
+          warn "Warning: #{network_errors.size} network error(s) occurred while fetching package metadata."
+          warn 'Some packages may not show complete version information.'
+        end
+
+        @packages
+      end
+
+      private
+
+        def fetch_package_metadata(package, network_errors, retry_count = 0) # rubocop:disable Metrics/MethodLength
+          begin
+            response = make_request(package.name)
+            raise "Unable to fetch meta data for #{package.name} from #{REGISTRY_URL} (#{response.class})" unless
+              response.is_a?(Net::HTTPSuccess)
+
+            json_package = JSON.parse(response.body, symbolize_names: true)
+            update_meta_data(package, json_package)
+          rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
+            if retry_count < MAX_RETRIES
+              retry_after_delay(retry_count)
+              retry_count += 1
+              retry
+            end
+
+            warn "Warning: Network error while fetching metadata for #{package.name}: #{e.message}"
+            network_errors << e
+          rescue StandardError => e
+            raise e unless retry_count < MAX_RETRIES
+
+            retry_after_delay(retry_count)
+            retry_count += 1
+            retry
+          end
+        end
+
+        def make_request(package_name)
+          uri = URI(REGISTRY_URL)
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.read_timeout = TIMEOUT
+          http.open_timeout = TIMEOUT
+
+          path = "/#{package_name}"
+          http.get(path)
+        end
+
+        def retry_after_delay(retry_count)
+          delay = INITIAL_RETRY_DELAY * (2**retry_count) # Exponential backoff
+          sleep(delay)
+        end
 
         def update_meta_data(package, json_data)
           latest_version = json_data[:'dist-tags'][:latest]
