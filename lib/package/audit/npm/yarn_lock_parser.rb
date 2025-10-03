@@ -9,36 +9,57 @@ module Package
           @yarn_lock_path = yarn_lock_path
         end
 
-        def fetch(default_deps, dev_deps, resolutions = {}) # rubocop:disable Metrics/MethodLength
-          pkgs = []
-          default_deps.merge(dev_deps).each do |dep_name, expected_version|
-            # Check if there's a resolution override for this package
-            version_to_check = resolutions[dep_name] || expected_version
-
-            # Extract version from patch URL if needed
-            if version_to_check.start_with?('patch:')
-              version_to_check = version_to_check.match(/patch:.*?@npm%3A([\d.-]+)#/)&.captures&.[](0) || version_to_check
-            end
-
-            pkg_block = fetch_package_block(dep_name, version_to_check)
-            version = fetch_package_version(dep_name, pkg_block)
-            pks = Package.new(dep_name.to_s, version, 'node')
-            pks.update groups: if dev_deps.key?(dep_name)
-                                 [Enum::Group::DEV]
-                               else
-                                 [Enum::Group::DEFAULT, Enum::Group::DEV]
-                               end
-            pkgs << pks
+        def fetch(default_deps, dev_deps, resolutions = {})
+          default_deps.merge(dev_deps).map do |dep_name, expected_version|
+            process_package(dep_name, expected_version, dev_deps, resolutions)
           end
-          pkgs
         end
 
         private
 
+        def process_package(dep_name, expected_version, dev_deps, resolutions)
+          version_to_check = get_version_to_check(dep_name, expected_version, resolutions)
+          pkg_block = fetch_package_block(dep_name, version_to_check)
+          version = fetch_package_version(dep_name, pkg_block)
+          create_package(dep_name, version, dev_deps)
+        end
+
+        def get_version_to_check(dep_name, expected_version, resolutions)
+          version_to_check = resolutions[dep_name] || expected_version
+          return version_to_check unless version_to_check.start_with?('patch:')
+
+          patch_version = version_to_check.match(/patch:.*?@npm%3A([\d.-]+)#/)&.captures&.[](0)
+          patch_version || version_to_check
+        end
+
+        def create_package(dep_name, version, dev_deps)
+          pks = Package.new(dep_name.to_s, version, 'node')
+          pks.update groups: package_groups(dep_name, dev_deps)
+          pks
+        end
+
+        def package_groups(dep_name, dev_deps)
+          if dev_deps.key?(dep_name)
+            [Enum::Group::DEV]
+          else
+            [Enum::Group::DEFAULT, Enum::Group::DEV]
+          end
+        end
+
         def fetch_package_block(dep_name, expected_version)
-          # First find all blocks that contain our package name
-          # Match package name and version spec, handling multiple comma-separated entries
-          block_pattern = /
+          blocks = find_package_blocks(dep_name)
+          raise NoMatchingPatternError, "Unable to find \"#{dep_name}\" in #{@yarn_lock_path}" if blocks.empty?
+
+          find_matching_block(blocks, dep_name, expected_version)
+        end
+
+        def find_package_blocks(dep_name)
+          block_pattern = build_block_pattern(dep_name)
+          @yarn_lock_file.scan(block_pattern)
+        end
+
+        def build_block_pattern(dep_name)
+          /
             ^["']?                                # Start of line with optional quote
             (?:[^"\n]+,\s*)*                     # Any previous entries in a comma-separated list
             (?:patch:)?                          # Optional patch prefix
@@ -48,13 +69,18 @@ module Package
             (?:resolution:.*?)?                  # Optional resolution field
             (?=\n["']|\n\s*\n|\z)               # Until next entry or end of file
           /mx
-          blocks = @yarn_lock_file.scan(block_pattern)
+        end
 
-          raise NoMatchingPatternError, "Unable to find \"#{dep_name}\" in #{@yarn_lock_path}" if blocks.empty?
-
-          # If we have multiple blocks, try to find the one with our version
-          version_pattern = /(?:patch:)?#{Regexp.escape(dep_name)}@(?:npm:)?#{Regexp.escape(expected_version)}["']?(?:,|:)/
+        def find_matching_block(blocks, dep_name, expected_version)
+          version_pattern = build_version_pattern(dep_name, expected_version)
           blocks.find { |block| block.match?(version_pattern) } || blocks.first
+        end
+
+        def build_version_pattern(dep_name, expected_version)
+          /
+            (?:patch:)?#{Regexp.escape(dep_name)}@
+            (?:npm:)?#{Regexp.escape(expected_version)}["']?(?:,|:)
+          /x
         end
 
         def fetch_package_version(dep_name, pkg_block)
@@ -84,7 +110,12 @@ module Package
         end
 
         def find_resolution_version(dep_name, pkg_block)
-          pattern = /resolution:.*?["']#{Regexp.escape(dep_name)}@(?:npm:)?(?:patch:#{Regexp.escape(dep_name)}@npm%3A)?([\d.-]+(?:-(?:beta|rc|dev)\.\d+(?:\.\d+)?)?)(?:&hash=[a-f0-9]+)?["']/
+          pattern = /
+            resolution:.*?["']#{Regexp.escape(dep_name)}@
+            (?:npm:)?(?:patch:#{Regexp.escape(dep_name)}@npm%3A)?
+            ([\d.-]+(?:-(?:beta|rc|dev)\.\d+(?:\.\d+)?)?)
+            (?:&hash=[a-f0-9]+)?["']
+          /x
           pkg_block.match(pattern)&.captures&.[](0)
         end
 

@@ -38,7 +38,7 @@ module Package
             next unless thread[:exception]
 
             case thread[:exception]
-            when Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH # rubocop:disable Layout/LineLength
+            when Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH
               network_errors << thread[:exception]
             else
               raise thread[:exception]
