@@ -13,58 +13,61 @@ module Package
         INITIAL_RETRY_DELAY = 1 # Initial retry delay in seconds
         TIMEOUT = 10 # Timeout in seconds
 
-      def initialize(packages)
-        @packages = packages
-      end
-
-      def fetch # rubocop:disable Metrics/MethodLength
-        network_errors = []
-
-        @packages.each_slice(BATCH_SIZE) do |batch|
-          threads = batch.map do |package|
-            Thread.new do
-              fetch_package_metadata(package, network_errors)
-            end
-          end
-
-          threads.each(&:join)
-          sleep(0.1) # Small delay between batches to avoid overwhelming the server
+        def initialize(packages)
+          @packages = packages
         end
 
-        unless network_errors.empty?
-          warn "Warning: #{network_errors.size} network error(s) occurred while fetching package metadata."
-          warn 'Some packages may not show complete version information.'
-        end
+        def fetch # rubocop:disable Metrics/MethodLength
+          network_errors = []
 
-        @packages
-      end
-
-      private
-
-        def fetch_package_metadata(package, network_errors, retry_count = 0) # rubocop:disable Metrics/MethodLength
-          begin
-            response = make_request(package.name)
-            raise "Unable to fetch meta data for #{package.name} from #{REGISTRY_URL} (#{response.class})" unless
-              response.is_a?(Net::HTTPSuccess)
-
-            json_package = JSON.parse(response.body, symbolize_names: true)
-            update_meta_data(package, json_package)
-          rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-            if retry_count < MAX_RETRIES
-              retry_after_delay(retry_count)
-              retry_count += 1
-              retry
+          @packages.each_slice(BATCH_SIZE) do |batch|
+            threads = batch.map do |package|
+              Thread.new do
+                fetch_package_metadata(package, network_errors)
+              end
             end
 
-            warn "Warning: Network error while fetching metadata for #{package.name}: #{e.message}"
-            network_errors << e
-          rescue StandardError => e
-            raise e unless retry_count < MAX_RETRIES
-
-            retry_after_delay(retry_count)
-            retry_count += 1
-            retry
+            threads.each(&:join)
+            sleep(0.1) # Small delay between batches to avoid overwhelming the server
           end
+
+          unless network_errors.empty?
+            warn "Warning: #{network_errors.size} network error(s) occurred while fetching package metadata."
+            warn 'Some packages may not show complete version information.'
+          end
+
+          @packages
+        end
+
+        private
+
+        def fetch_package_metadata(package, network_errors, retry_count = 0)
+          response = make_request_with_retry(package.name, retry_count)
+          return if response.nil?
+
+          json_package = JSON.parse(response.body, symbolize_names: true)
+          update_meta_data(package, json_package)
+        rescue StandardError => e
+          handle_error(package, e, network_errors)
+        end
+
+        def make_request_with_retry(package_name, retry_count)
+          response = make_request(package_name)
+          raise "Unable to fetch meta data for #{package_name} from #{REGISTRY_URL} (#{response.class})" unless
+            response.is_a?(Net::HTTPSuccess)
+
+          response
+        rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+          return nil if retry_count >= MAX_RETRIES
+
+          retry_after_delay(retry_count)
+          retry_count += 1
+          retry
+        end
+
+        def handle_error(package, error, network_errors)
+          warn "Warning: Error while fetching metadata for #{package.name}: #{error.message}"
+          network_errors << error
         end
 
         def make_request(package_name)
