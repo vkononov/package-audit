@@ -1,0 +1,5 @@
+"@typescript/native-preview@npm:7.0.0-dev.20250703.1":
+  version "7.0.0-dev.20250703.1"
+  resolution: "@typescript/native-preview@npm:7.0.0-dev.20250703.1"
+  dependencies:
+    "@typescript/native-preview-darwin-arm64": "npm:7.0.0-dev.20250703.1"

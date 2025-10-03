@@ -1,0 +1,5 @@
+"cheerio@npm:1.0.0-rc.12":
+  version "1.0.0-rc.12"
+  resolution: "cheerio@npm:1.0.0-rc.12"
+  dependencies:
+    cheerio-select: "npm:^2.1.0"

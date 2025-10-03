@@ -1,0 +1,8 @@
+"@fullscript/graphql-codegen-object-types@https://github.com/Fullscript/graphql-codegen-object-types.git#2.0.0":
+  version "2.0.0"
+  resolution: "@fullscript/graphql-codegen-object-types@https://github.com/Fullscript/graphql-codegen-object-types.git#commit=ed1adc50d3d8e8f0af40fbfb743010f204a8f553"
+  dependencies:
+    "@graphql-codegen/plugin-helpers" "^2.4.0"
+    "@graphql-codegen/visitor-plugin-common" "^2.5.2"
+    "@graphql-tools/utils" "^8.6.1"
+    "tslib" "~2.3.0"

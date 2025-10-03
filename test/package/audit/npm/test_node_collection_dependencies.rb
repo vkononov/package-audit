@@ -5,7 +5,7 @@ require_relative '../../../../lib/package/audit/npm/node_collection'
 module Package
   module Audit
     module Npm
-      class TestNodeCollection < Minitest::Test
+      class TestNodeCollectionDependencies < Minitest::Test
         def setup
           @base_dir = Dir.pwd
         end
@@ -102,6 +102,18 @@ module Package
           refute node_collection.send(:local_dependency?, 'git+ssh://git@github.com/user/repo.git')
           refute node_collection.send(:local_dependency?, 'git://github.com/user/repo.git')
           refute node_collection.send(:local_dependency?, 'https://github.com/user/repo/archive/master.tar.gz')
+        end
+
+        def test_local_dependency_edge_cases
+          # Test edge cases
+          node_collection = create_node_collection
+
+          refute node_collection.send(:local_dependency?, '')
+          refute node_collection.send(:local_dependency?, nil)
+
+          # Test symbols (should be converted to string)
+          assert node_collection.send(:local_dependency?, :'file:./local')
+          refute node_collection.send(:local_dependency?, :'^1.0.0')
         end
       end
     end
