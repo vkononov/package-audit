@@ -8,8 +8,8 @@ module Package
     module Npm
       class NpmMetaData
         REGISTRY_URL = 'https://registry.npmjs.org'
-        BATCH_SIZE = 10  # Process 10 packages at a time
-        MAX_RETRIES = 3  # Maximum number of retries per request
+        BATCH_SIZE = 10 # Process 10 packages at a time
+        MAX_RETRIES = 3 # Maximum number of retries per request
         INITIAL_RETRY_DELAY = 1 # Initial retry delay in seconds
         TIMEOUT = 10 # Timeout in seconds
 
