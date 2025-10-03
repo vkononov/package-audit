@@ -12,6 +12,8 @@ module Package
         end
 
         def format # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+          return @curr if @target.nil? # No latest version available
+
           version_parts = @curr.split('.').map(&:to_i)
           latest_version_parts = @target.split('.').map(&:to_i)
           curr_tokens = @curr.split('.')

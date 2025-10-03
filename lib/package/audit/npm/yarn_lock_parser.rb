@@ -100,7 +100,7 @@ module Package
                   "Unable to find the version of \"#{dep_name}\" in #{@yarn_lock_path}"
           end
 
-          version || '0.0.0.0'
+          version || 'unknown'
         end
 
         def extract_version_from_block(dep_name, pkg_block)
