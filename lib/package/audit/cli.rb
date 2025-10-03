@@ -83,8 +83,8 @@ module Package
 
       def within_rescue_block
         yield
-        # rescue StandardError => e
-        #   exit_with_error "#{e.class}: #{e.message}"
+      rescue StandardError => e
+        exit_with_error "#{e.class}: #{e.message}"
       end
 
       def exit_with_error(msg)
