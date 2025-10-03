@@ -16,11 +16,6 @@ A useful tool for patch management and prioritization, `package-audit` produces 
 * Ruby
 * Node (using Yarn)
 
-## Known Issues
-
-1. [RubyGems.org API](https://guides.rubygems.org/rubygems-org-api/) produces an incorrect date for the latest version of the [puma](https://github.com/puma/puma) gem. As a result, `puma` is shown on reports as an outdated and a deprecated gem as a false positive.
-
-
 ## Report Example
 
 Below is an example of running the script on a project that uses both Ruby and Node.
