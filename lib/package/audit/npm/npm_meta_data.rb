@@ -1,7 +1,6 @@
 require 'json'
 require 'net/http'
 require 'socket'
-require 'openssl'
 
 module Package
   module Audit
