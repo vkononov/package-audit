@@ -1,5 +1,6 @@
 require 'json'
 require 'net/http'
+require 'openssl'
 require 'socket'
 
 module Package
@@ -15,7 +16,8 @@ module Package
         def fetch # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
           threads = @packages.map do |package|
             Thread.new do
-              response = Net::HTTP.get_response(URI.parse("#{REGISTRY_URL}/#{package.name}"))
+              uri = URI.parse("#{REGISTRY_URL}/#{package.name}")
+              response = make_http_request(uri)
               raise "Unable to fetch meta data for #{package.name} from #{REGISTRY_URL} (#{response.class})" unless
                 response.is_a?(Net::HTTPSuccess)
 
@@ -23,6 +25,9 @@ module Package
               update_meta_data(package, json_package)
             rescue Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout => e
               warn "Warning: Network timeout while fetching metadata for #{package.name}: #{e.message}"
+              Thread.current[:exception] = e
+            rescue OpenSSL::SSL::SSLError => e
+              warn "Warning: SSL verification failed for #{package.name}: #{e.message}"
               Thread.current[:exception] = e
             rescue SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
               warn "Warning: Network error while fetching metadata for #{package.name}: #{e.message}"
@@ -38,7 +43,7 @@ module Package
             next unless thread[:exception]
 
             case thread[:exception]
-            when Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH # rubocop:disable Layout/LineLength
+            when Net::TimeoutError, Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH # rubocop:disable Layout/LineLength
               network_errors << thread[:exception]
             else
               raise thread[:exception]
@@ -54,6 +59,19 @@ module Package
         end
 
         private
+
+        def make_http_request(uri)
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.cert_store = OpenSSL::X509::Store.new
+          http.cert_store.set_default_paths
+          http.read_timeout = 10
+          http.open_timeout = 5
+
+          request = Net::HTTP::Get.new(uri)
+          http.request(request)
+        end
 
         def update_meta_data(package, json_data)
           latest_version = json_data[:'dist-tags'][:latest]

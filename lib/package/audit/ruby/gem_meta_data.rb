@@ -1,4 +1,5 @@
 require_relative '../models/package'
+require 'openssl'
 
 module Package
   module Audit
@@ -170,15 +171,24 @@ module Package
           }
         end
 
-        def fetch_gem_version_dates(gem_name)
+        def fetch_gem_version_dates(gem_name) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
           uri = build_api_uri(gem_name)
           response = make_http_request(uri)
 
           return nil unless success_response?(response)
 
           parse_version_dates(response.body)
+        rescue Net::OpenTimeout, Net::ReadTimeout => e
+          log_api_error(gem_name, "Network timeout: #{e.message}") if debug_mode?
+          nil
+        rescue OpenSSL::SSL::SSLError => e
+          log_api_error(gem_name, "SSL verification failed: #{e.message}") if debug_mode?
+          nil
+        rescue SocketError, Errno::ECONNREFUSED => e
+          log_api_error(gem_name, "Network error: #{e.message}") if debug_mode?
+          nil
         rescue StandardError => e
-          log_api_error(gem_name, e) if debug_mode?
+          log_api_error(gem_name, e.message) if debug_mode?
           nil
         end
 
@@ -206,6 +216,9 @@ module Package
         def create_http_client(uri)
           Net::HTTP.new(uri.host, uri.port).tap do |http|
             http.use_ssl = true
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+            http.cert_store = OpenSSL::X509::Store.new
+            http.cert_store.set_default_paths
             http.read_timeout = HTTP_READ_TIMEOUT
             http.open_timeout = HTTP_OPEN_TIMEOUT
           end
