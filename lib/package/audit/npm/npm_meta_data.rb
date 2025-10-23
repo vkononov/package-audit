@@ -1,5 +1,6 @@
 require 'json'
 require 'net/http'
+require 'openssl'
 require 'socket'
 
 module Package
@@ -50,7 +51,7 @@ module Package
           handle_error(package, e, network_errors)
         end
 
-        def make_request_with_retry(package_name, retry_count)
+        def make_request_with_retry(package_name, retry_count) # rubocop:disable Metrics/MethodLength
           response = make_request(package_name)
           return nil if response.is_a?(Net::HTTPNotFound) # Skip 404s - likely private packages
 
@@ -58,12 +59,15 @@ module Package
             response.is_a?(Net::HTTPSuccess)
 
           response
-        rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+        rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
           return nil if retry_count >= MAX_RETRIES
 
           retry_after_delay(retry_count)
           retry_count += 1
           retry
+        rescue OpenSSL::SSL::SSLError => e
+          warn "Warning: SSL verification failed for #{package_name}: #{e.message}"
+          nil
         end
 
         def handle_error(package, error, network_errors)
@@ -79,6 +83,8 @@ module Package
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl = true
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.cert_store = OpenSSL::X509::Store.new
+          http.cert_store.set_default_paths
           http.read_timeout = TIMEOUT
           http.open_timeout = TIMEOUT
 
