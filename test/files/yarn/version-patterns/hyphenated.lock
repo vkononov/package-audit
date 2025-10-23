@@ -1,0 +1,5 @@
+"@rails/ujs@npm:6.1.4-1":
+  version "6.1.4-1"
+  resolution: "@rails/ujs@npm:6.1.4-1"
+  dependencies:
+    "@rails/actioncable" "^6.0.0"

@@ -14,6 +14,8 @@ module Package
         end
 
         def format
+          return 'unknown' if @date.nil? # Handle private packages
+
           seconds_since_date = (Time.now - Time.parse(@date)).to_i
 
           if seconds_since_date >= Const::Time::SECONDS_ELAPSED_TO_BE_OUTDATED

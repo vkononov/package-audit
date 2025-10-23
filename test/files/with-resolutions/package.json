@@ -1,0 +1,13 @@
+{
+  "name": "test-resolutions",
+  "version": "1.0.0",
+  "dependencies": {
+    "@apollo/client": "^3.14.0",
+    "react": "^18.0.0"
+  },
+  "resolutions": {
+    "@apollo/client": "3.12.5",
+    "react": "18.2.0"
+  }
+}
+

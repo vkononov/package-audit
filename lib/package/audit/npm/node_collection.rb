@@ -55,15 +55,16 @@ module Package
         private
 
         def fetch_from_package_json
-          package_json = JSON.parse(File.read("#{@dir}/#{Const::File::PACKAGE_JSON}"), symbolize_names: true)
-          default_deps = package_json[:dependencies] || {}
-          dev_deps = package_json[:devDependencies] || {}
+          package_json = JSON.parse(File.read("#{@dir}/#{Const::File::PACKAGE_JSON}"))
+          default_deps = package_json['dependencies'] || {}
+          dev_deps = package_json['devDependencies'] || {}
+          resolutions = package_json['resolutions'] || {}
 
           # Filter out local dependencies before processing
           default_deps = filter_local_dependencies(default_deps)
           dev_deps = filter_local_dependencies(dev_deps)
 
-          [default_deps, dev_deps]
+          [default_deps, dev_deps, resolutions]
         end
 
         def filter_local_dependencies(dependencies)
@@ -79,9 +80,10 @@ module Package
         end
 
         def fetch_from_lock_file
-          default_deps, dev_deps = fetch_from_package_json
+          default_deps, dev_deps, resolutions = fetch_from_package_json
           if File.exist?("#{@dir}/#{Const::File::YARN_LOCK}")
-            YarnLockParser.new("#{@dir}/#{Const::File::YARN_LOCK}").fetch(default_deps || {}, dev_deps || {})
+            YarnLockParser.new("#{@dir}/#{Const::File::YARN_LOCK}").fetch(default_deps || {}, dev_deps || {},
+                                                                          resolutions || {})
           else
             []
           end

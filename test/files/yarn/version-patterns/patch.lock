@@ -1,0 +1,5 @@
+"code-complexity@patch:code-complexity@npm%3A4.4.4#~/.yarn/patches/code-complexity-npm-4.4.4-73df6b6f73.patch":
+  version "4.4.4&hash=7581aa"
+  resolution: "code-complexity@patch:code-complexity@npm%3A4.4.4#~/.yarn/patches/code-complexity-npm-4.4.4-73df6b6f73.patch::version=4.4.4&hash=7581aa"
+  dependencies:
+    commander: "^2.20.0"
