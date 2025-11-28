@@ -7,8 +7,6 @@
 
 A useful tool for patch management and prioritization, `package-audit` produces a list of dependencies that are outdated, deprecated or have security vulnerabilities.
 
-`Package::Audit` will automatically detect the technologies used by the project and print out an appropriate report.
-
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/vkononov)
 
 ## Supported Technologies
@@ -113,6 +111,8 @@ package-audit [DIR] --technology node --technology ruby
 package-audit [DIR] -g staging -g production
 package-audit [DIR] --group staging --group production
 ```
+
+**Note:** `Package::Audit` will attempt to automatically detect the technologies used by the project.
 
 ### Configuration
 
