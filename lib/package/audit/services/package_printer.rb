@@ -24,12 +24,13 @@ module Package
         case @options[Enum::Option::FORMAT]
         when Enum::Format::CSV
           csv(fields, exclude_headers: @options[Enum::Option::CSV_EXCLUDE_HEADERS])
+          puts
         when Enum::Format::MARKDOWN
           markdown(fields)
+          puts
         else
           pretty(fields)
         end
-        puts
       end
 
       private
@@ -47,19 +48,23 @@ module Package
         header = fields.map.with_index do |field, index|
           Const::Fields::HEADERS[field].gsub(BASH_FORMATTING_REGEX, '').ljust(max_widths[index])
         end.join(' ' * COLUMN_GAP)
-        separator = max_widths.map { |width| '=' * width }.join('=' * COLUMN_GAP)
+        separator_plain = max_widths.map { |width| '─' * width }.join('─' * COLUMN_GAP)
+        separator = Util::BashColor.light_green(separator_plain)
 
-        puts separator
-        puts header
-        puts separator
+        puts ' '
+        puts ' ' + separator
+        puts ' ' + header
+        puts ' ' + separator
 
         @pkgs.each do |pkg|
-          puts fields.map.with_index { |key, index|
+          puts ' ' + fields.map.with_index { |key, index|
             val = get_field_value(pkg, key)
             formatting_length = val.length - val.gsub(BASH_FORMATTING_REGEX, '').length
             val.ljust(max_widths[index] + formatting_length)
           }.join(' ' * COLUMN_GAP)
         end
+
+        puts ' ' + separator
       end
 
       def csv(fields = Const::Fields::DEFAULT, exclude_headers: false)
