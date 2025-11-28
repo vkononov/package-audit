@@ -17,10 +17,10 @@ module Package
       def test_that_the_same_fields_are_shown_for_all_reports
         headers = Const::Fields::HEADERS.slice(*Const::Fields::DEFAULT)
 
-        deprecated_output = `bundle exec package-audit deprecated test/files/gemfile/report`
-        outdated_output = `bundle exec package-audit outdated test/files/gemfile/report`
+        deprecated_output = `bundle exec package-audit --deprecated test/files/gemfile/report`
+        outdated_output = `bundle exec package-audit --outdated test/files/gemfile/report`
         default_output = `bundle exec package-audit test/files/gemfile/report`
-        vulnerable_output = `bundle exec package-audit vulnerable test/files/gemfile/report`
+        vulnerable_output = `bundle exec package-audit --vulnerable test/files/gemfile/report`
 
         headers.each_value do |value|
           assert_match value, deprecated_output
