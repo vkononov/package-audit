@@ -112,11 +112,33 @@ gem install package-audit
     package-audit --config .package-audit.yml [DIR]
     ```
 
-* To display the vulnerable, deprecated or outdated packages separately (one list at a time), use:
+* To filter packages by specific risk types, use the `--deprecated`, `--outdated`, or `--vulnerable` flags:
 
     ```bash
-    package-audit [deprecated|outdated|vulnerable] [DIR]
+    # Show only deprecated packages
+    package-audit --deprecated [DIR]
+
+    # Show only vulnerable packages
+    package-audit --vulnerable [DIR]
+
+    # Show deprecated OR vulnerable packages (not outdated-only)
+    package-audit --deprecated --vulnerable [DIR]
     ```
+
+* To exclude specific risk types, use the `--skip-deprecated`, `--skip-outdated`, or `--skip-vulnerable` flags:
+
+    ```bash
+    # Show everything except deprecated packages
+    package-audit --skip-deprecated [DIR]
+
+    # Show everything except outdated packages
+    package-audit --skip-outdated [DIR]
+
+    # Show only vulnerable packages (exclude deprecated and outdated)
+    package-audit --skip-deprecated --skip-outdated [DIR]
+    ```
+
+    **Note:** Packages with multiple risk types are handled intelligently. For example, a package that is both outdated and vulnerable will still appear when using `--skip-outdated` because it has a vulnerability.
 
 * To include ignored packages use the `--include-ignored` flag:
 

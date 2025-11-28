@@ -8,6 +8,9 @@ module Package
         GROUP = 'group'
         INCLUDE_IGNORED = 'include-ignored'
         TECHNOLOGY = 'technology'
+        DEPRECATED = 'deprecated'
+        OUTDATED = 'outdated'
+        VULNERABLE = 'vulnerable'
       end
     end
   end

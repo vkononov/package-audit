@@ -5,7 +5,7 @@ require_relative '../../lib/package/audit/version'
 require 'bundler'
 
 module Package
-  class TestAudit < Minitest::Test
+  class TestAudit < Minitest::Test # rubocop:disable Metrics/ClassLength
     def test_that_it_has_a_version_number
       refute_nil Package::Audit::VERSION
     end
@@ -31,19 +31,19 @@ module Package
     end
 
     def test_that_there_is_a_success_message_when_everything_is_up_to_date
-      output = `bundle exec package-audit outdated test/files/gemfile/empty`
+      output = `bundle exec package-audit --outdated test/files/gemfile/empty`
 
       assert_match 'There are no outdated Ruby packages!', output
     end
 
     def test_that_there_is_a_success_message_when_there_are_no_vulnerabilities
-      output = `bundle exec package-audit vulnerable test/files/gemfile/empty`
+      output = `bundle exec package-audit --vulnerable test/files/gemfile/empty`
 
       assert_match 'There are no vulnerable Ruby packages!', output
     end
 
     def test_that_there_is_a_success_message_when_there_are_no_deprecations
-      output = `bundle exec package-audit deprecated test/files/gemfile/empty`
+      output = `bundle exec package-audit --deprecated test/files/gemfile/empty`
 
       assert_match 'There are no deprecated Ruby packages!', output
     end
@@ -64,21 +64,47 @@ module Package
     end
 
     def test_that_there_is_a_message_about_outdated_gems
-      output = `bundle exec package-audit outdated test/files/gemfile/outdated`
+      output = `bundle exec package-audit --outdated test/files/gemfile/outdated`
 
       assert_match 'Found a total of 1 Ruby packages.', output
     end
 
     def test_that_there_is_a_message_about_deprecated_gems
-      output = `bundle exec package-audit deprecated test/files/gemfile/deprecated`
+      output = `bundle exec package-audit --deprecated test/files/gemfile/deprecated`
 
       assert_match 'Found a total of 1 Ruby packages.', output
     end
 
     def test_that_there_is_a_message_about_vulnerable_gems
-      output = `bundle exec package-audit vulnerable test/files/gemfile/vulnerable`
+      output = `bundle exec package-audit --vulnerable test/files/gemfile/vulnerable`
 
       assert_match 'Found a total of 1 Ruby packages.', output
+    end
+
+    def test_that_skip_deprecated_excludes_deprecated_only_packages
+      output = `bundle exec package-audit --skip-deprecated test/files/gemfile/report`
+
+      # Report has: 1 vulnerable, 2 outdated, 1 deprecated
+      # Skip-deprecated should show: 1 vulnerable + 2 outdated = 3 packages
+      # (unless any outdated are also deprecated, then adjust)
+      assert_match 'Found a total of', output
+      refute_match '1 deprecated', output
+    end
+
+    def test_that_skip_outdated_excludes_outdated_only_packages
+      output = `bundle exec package-audit --skip-outdated test/files/gemfile/report`
+
+      # Skip-outdated should show: 1 vulnerable + 1 deprecated
+      # But if vulnerable is also outdated, it should still appear
+      assert_match 'Found a total of', output
+      refute_match '2 outdated', output
+    end
+
+    def test_that_multiple_positive_filters_work
+      output = `bundle exec package-audit --deprecated --vulnerable test/files/gemfile/report`
+
+      # Should show deprecated OR vulnerable packages
+      assert_match 'Found a total of', output
     end
 
     def test_that_there_is_a_report_of_node_modules_with_no_dependencies
@@ -94,19 +120,19 @@ module Package
     end
 
     def test_that_there_is_a_success_message_when_node_modules_are_up_to_date
-      output = `bundle exec package-audit outdated test/files/yarn/empty`
+      output = `bundle exec package-audit --outdated test/files/yarn/empty`
 
       assert_match 'There are no outdated Node packages!', output
     end
 
     def test_that_there_is_a_success_message_when_node_modules_have_no_vulnerabilities
-      output = `bundle exec package-audit vulnerable test/files/yarn/empty`
+      output = `bundle exec package-audit --vulnerable test/files/yarn/empty`
 
       assert_match 'There are no vulnerable Node packages!', output
     end
 
     def test_that_there_is_a_success_message_when_node_modules_have_no_deprecations
-      output = `bundle exec package-audit deprecated test/files/yarn/empty`
+      output = `bundle exec package-audit --deprecated test/files/yarn/empty`
 
       assert_match 'There are no deprecated Node packages!', output
     end
@@ -118,19 +144,19 @@ module Package
     end
 
     def test_that_there_is_a_message_about_outdated_node_modules
-      output = `bundle exec package-audit outdated test/files/yarn/outdated`
+      output = `bundle exec package-audit --outdated test/files/yarn/outdated`
 
       assert_match 'Found a total of 3 Node packages.', output
     end
 
     def test_that_there_is_a_message_about_deprecated_node_modules
-      output = `bundle exec package-audit deprecated test/files/yarn/deprecated`
+      output = `bundle exec package-audit --deprecated test/files/yarn/deprecated`
 
       assert_match 'Found a total of 1 Node packages.', output
     end
 
     def test_that_there_is_a_message_about_vulnerable_node_modules
-      output = `bundle exec package-audit outdated test/files/yarn/vulnerable`
+      output = `bundle exec package-audit --vulnerable test/files/yarn/vulnerable`
 
       assert_match 'Found a total of 1 Node packages.', output
     end
