@@ -52,19 +52,20 @@ module Package
         separator = Util::BashColor.light_green(separator_plain)
 
         puts ' '
-        puts ' ' + separator
-        puts ' ' + header
-        puts ' ' + separator
+        puts " #{separator}"
+        puts " #{header}"
+        puts " #{separator}"
 
         @pkgs.each do |pkg|
-          puts ' ' + fields.map.with_index { |key, index|
+          row = fields.map.with_index do |key, index|
             val = get_field_value(pkg, key)
             formatting_length = val.length - val.gsub(BASH_FORMATTING_REGEX, '').length
             val.ljust(max_widths[index] + formatting_length)
-          }.join(' ' * COLUMN_GAP)
+          end.join(' ' * COLUMN_GAP)
+          puts " #{row}"
         end
 
-        puts ' ' + separator
+        puts " #{separator}"
       end
 
       def csv(fields = Const::Fields::DEFAULT, exclude_headers: false)

@@ -48,13 +48,13 @@ module Package
 
         assert_equal 8, lines.length
         assert_equal ' ', lines[0]
-        assert lines[1].include?('─')
+        assert_includes lines[1], '─'
         assert_equal ' Package    Version  Latest   Latest Date', lines[2]
-        assert lines[3].include?('─')
+        assert_includes lines[3], '─'
         assert_equal " fileutils  1.#{Util::BashColor.yellow('5.0')}    1.7.1    #{@today} ", lines[4]
         assert_equal " puma       5.1.1    5.1.1    #{Util::BashColor.yellow('2020-12-10')} ", lines[5]
         assert_equal " rails      #{Util::BashColor.orange('6.0.0')}    7.0.4.3  #{@today} ", lines[6]
-        assert lines[7].include?('─')
+        assert_includes lines[7], '─'
       end
 
       def test_that_the_dependencies_are_displayed_correctly_in_markdown # rubocop:disable Metrics/AbcSize
@@ -88,7 +88,7 @@ module Package
         PackagePrinter.new({}, [@rails]).print(%i[vulnerabilities])
         lines = @output.string.split("\n")
 
-        assert_equal ' ' + Formatter::Vulnerability.new(@rails.vulnerabilities).format, lines[4]
+        assert_equal " #{Formatter::Vulnerability.new(@rails.vulnerabilities).format}", lines[4]
       end
 
       def test_that_vulnerabilities_are_displayed_correctly_in_csv
