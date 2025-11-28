@@ -66,7 +66,7 @@ module Package
         output = `bundle exec package-audit --skip-deprecated --skip-outdated test/files/gemfile/report`
 
         # Should only show vulnerable packages (and clean ones if any)
-        assert_match(/vulnerable/, output)
+        assert_match(/⦗V⦘ulnerable/, output)
       end
 
       # Test that packages with multiple risk types are handled correctly

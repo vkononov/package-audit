@@ -75,9 +75,9 @@ module Package
         end
 
         private_class_method def self.status_message(stats)
-          outdated_str = "#{stats[:outdated]} outdated" + outdated_details(stats)
-          deprecated_str = "#{stats[:deprecated]} deprecated" + deprecated_details(stats)
-          vulnerable_str = "#{stats[:vulnerable]} vulnerable" + vulnerability_details(stats)
+          outdated_str = "#{stats[:outdated]} ⦗O⦘utdated" + outdated_details(stats)
+          deprecated_str = "#{stats[:deprecated]} ⦗D⦘eprecated" + deprecated_details(stats)
+          vulnerable_str = "#{stats[:vulnerable]} ⦗V⦘ulnerable" + vulnerability_details(stats)
 
           Util::BashColor.cyan("#{vulnerable_str}, #{outdated_str}, #{deprecated_str}.")
         end

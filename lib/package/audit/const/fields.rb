@@ -8,13 +8,12 @@ module Package
           version_date
           latest_version
           latest_version_date
-          groups
+          flags
           vulnerabilities
           risk_type
-          risk_explanation
         ]
 
-        DEFAULT = %i[name version latest_version latest_version_date groups vulnerabilities risk_type risk_explanation]
+        DEFAULT = %i[name version latest_version latest_version_date flags vulnerabilities risk_type]
 
         # the names of these fields must match the instance variables in the Dependency class
         HEADERS = {
@@ -23,10 +22,9 @@ module Package
           version_date: 'Version Date',
           latest_version: 'Latest',
           latest_version_date: 'Latest Date',
-          groups: 'Groups',
+          flags: 'Flags',
           vulnerabilities: 'Vulnerabilities',
-          risk_type: 'Risk',
-          risk_explanation: 'Risk Explanation'
+          risk_type: 'Risk'
         }
       end
     end

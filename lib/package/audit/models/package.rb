@@ -80,6 +80,13 @@ module Package
         false
       end
 
+      def flags
+        v = vulnerable? ? 'V' : '·'
+        o = outdated? ? 'O' : '·'
+        d = deprecated? ? 'D' : '·'
+        "⦗#{v}#{o}#{d}⦘"
+      end
+
       def to_csv(fields)
         fields.map { |field| send(field) }.join(',')
       end

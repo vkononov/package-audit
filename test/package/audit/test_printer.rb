@@ -70,7 +70,7 @@ module Package
 
       def test_that_the_dependencies_are_displayed_correctly_in_csv_with_headers # rubocop:disable Metrics/AbcSize
         options = {Enum::Option::FORMAT => Enum::Format::CSV}
-        columns = %i[name version latest_version groups]
+        columns = %i[name version latest_version flags]
         PackagePrinter.new(options, @gems).print(columns)
         lines = @output.string.split("\n")
 
@@ -78,7 +78,7 @@ module Package
         assert_equal columns.join(','), lines[0]
 
         @gems.each_with_index do |gem, index|
-          assert_equal "#{gem.name},#{gem.version},#{gem.latest_version},#{gem.group_list}", lines[index + 1]
+          assert_equal "#{gem.name},#{gem.version},#{gem.latest_version},#{gem.flags}", lines[index + 1]
         end
       end
 
