@@ -22,18 +22,6 @@ Below is an example of running the script on a project that uses both Ruby and N
 
 ![Example Output](docs/example.png)
 
-### Understanding the Flags Column
-
-The Flags column shows which risk types apply to each package:
-
-- `⦗V··⦘` - Vulnerable (has security vulnerabilities)
-- `⦗·O·⦘` - Outdated (newer version available)
-- `⦗··D⦘` - Deprecated (no updates in 2+ years)
-- `⦗VO·⦘` - Both vulnerable and outdated
-- `⦗VOD⦘` - All three risk types apply
-
-The footer uses the same notation (⦗V⦘ulnerable, ⦗O⦘utdated, ⦗D⦘eprecated) as a legend.
-
 ## Continuous Integration
 
 This gem provides a return code of `0` to indicate success and `1` to indicate failure. It is specifically designed for seamless integration into continuous integration pipelines.
@@ -60,93 +48,110 @@ gem install package-audit
 
 ## Usage
 
-* To generate a report of vulnerable, deprecated, and outdated packages, execute the following command (optionally providing the `DIR` parameter to specify the path of the project you wish to check, which defaults to the current directory):
+### Basic Report
 
-    ```bash
-    package-audit [DIR]
-    ```
+Run a full audit (DIR defaults to current directory):
 
-* To include a custom configuration file, use `--config` or `-c` (see [Configuration File](#configuration-file) for details):
+```bash
+package-audit [DIR]
+```
 
-    ```bash
-    package-audit [DIR] --config .package-audit.yml
-    ```
+### Filtering by Risk Type
 
-* To filter packages by specific risk types, use the `--deprecated`, `--outdated`, or `--vulnerable` flags:
+Show only specific risk types:
 
-    ```bash
-    # Show only deprecated packages
-    package-audit [DIR] --deprecated
+```bash
+# Show only deprecated packages
+package-audit [DIR] --deprecated
 
-    # Show only vulnerable packages
-    package-audit [DIR] --vulnerable
+# Show only vulnerable packages
+package-audit [DIR] --vulnerable
 
-    # Show packages that are deprecated and/or vulnerable
-    package-audit [DIR] --deprecated --vulnerable
-    ```
+# Show packages that are deprecated and/or vulnerable
+package-audit [DIR] --deprecated --vulnerable
+```
 
-* To exclude specific risk types, use the `--skip-deprecated`, `--skip-outdated`, or `--skip-vulnerable` flags:
+### Excluding Risk Types
 
-    ```bash
-    # Show everything except deprecated packages
-    package-audit [DIR] --skip-deprecated
+Exclude specific risk types from the report:
 
-    # Show everything except outdated packages
-    package-audit [DIR] --skip-outdated
+```bash
+# Show everything except deprecated packages
+package-audit [DIR] --skip-deprecated
 
-    # Show only vulnerable packages (exclude deprecated and outdated)
-    package-audit [DIR] --skip-deprecated --skip-outdated
-    ```
+# Show everything except outdated packages
+package-audit [DIR] --skip-outdated
 
-    **Note:** Packages with multiple risk types are handled intelligently. For example, a package that is both outdated and vulnerable will still appear when using `--skip-outdated` because it has a vulnerability.
+# Show only vulnerable packages (exclude deprecated and outdated)
+package-audit [DIR] --skip-deprecated --skip-outdated
+```
 
-* To include ignored packages use the `--include-ignored` flag:
+**Important:** Packages with multiple risk types are handled intelligently. For example, a package that is both outdated and vulnerable will still appear when using `--skip-outdated` because it has a vulnerability.
 
-    ```bash
-    package-audit [DIR] --include-ignored
-    ```
+### Understanding the Flags Column
 
-* To include only specific technologies use `--technology` or `-t`:
+The Flags column in the output shows which risk types apply to each package:
 
-    ```bash
-    package-audit [DIR] -t node -t ruby
-    package-audit [DIR] --technology node --technology ruby
-    ```
+- `⦗V··⦘` - Vulnerable (has security vulnerabilities)
+- `⦗·O·⦘` - Outdated (newer version available)
+- `⦗··D⦘` - Deprecated (no updates in 2+ years)
+- `⦗VO·⦘` - Both vulnerable and outdated
+- `⦗VOD⦘` - All three risk types apply
 
-* To include only specific groups use `--group` or `-g`:
+The footer uses the same notation `⦗V⦘ulnerable, ⦗O⦘utdated, ⦗D⦘eprecated` as a legend.
 
-    ```bash
-    package-audit [DIR] -g staging -g production
-    package-audit [DIR] --group staging --group production
-    ```
+### Scoping Options
 
-* To produce the same report in a CSV format run:
+Filter by technology or group:
 
-    ```bash
-    package-audit --format csv
-    ```
+```bash
+# Specific technologies
+package-audit [DIR] -t node -t ruby
+package-audit [DIR] --technology node --technology ruby
 
-* To produce the same report in a Markdown format run:
+# Specific groups
+package-audit [DIR] -g staging -g production
+package-audit [DIR] --group staging --group production
+```
 
-    ```bash
-    package-audit --format md
-    ```
+### Configuration
 
-* To show how risk is calculated for the above report run:
+Use a custom configuration file (see [Configuration File](#configuration-file) for details):
 
-    ```bash
-    package-audit risk
-    ```
+```bash
+package-audit [DIR] --config .package-audit.yml
+```
 
-#### For a list of all commands and their options run:
+Include packages normally ignored by configuration:
+
+```bash
+package-audit [DIR] --include-ignored
+```
+
+### Output Formats
+
+```bash
+# CSV format
+package-audit [DIR] --format csv
+
+# Markdown format
+package-audit [DIR] --format md
+```
+
+### Other Commands
+
+```bash
+# Show how risk is calculated
+package-audit risk
+
+# Show version
+package-audit version
+```
+
+### Getting Help
 
 ```bash
 package-audit help
-```
-
-OR
-
-```bash
 package-audit help [COMMAND]
 ```
 
