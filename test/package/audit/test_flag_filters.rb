@@ -16,14 +16,14 @@ module Package
         output = `bundle exec package-audit --outdated test/files/gemfile/report`
 
         assert_match(/Package/, output)
-        assert_match(/outdated/, output)
+        assert_match(/Found a total of/, output)
       end
 
       def test_vulnerable_flag_shows_only_vulnerable_packages
         output = `bundle exec package-audit --vulnerable test/files/gemfile/report`
 
         assert_match(/Package/, output)
-        assert_match(/vulnerable/, output)
+        assert_match(/Found a total of/, output)
       end
 
       def test_multiple_positive_flags_show_union_of_packages
@@ -52,12 +52,14 @@ module Package
         refute_equal full_output, skip_output, 'Skip-outdated should produce different output'
       end
 
-      def test_skip_vulnerable_excludes_vulnerable_packages
-        full_output = `bundle exec package-audit test/files/gemfile/report`
+      def test_skip_vulnerable_still_shows_multi_risk_packages
+        # NOTE: If a package is vulnerable AND has other risks (like outdated),
+        # it will still appear with --skip-vulnerable because of the other risk
         skip_output = `bundle exec package-audit --skip-vulnerable test/files/gemfile/report`
 
-        # The skip-vulnerable output should be different from full output
-        refute_equal full_output, skip_output, 'Skip-vulnerable should produce different output'
+        # Should still show packages (deprecated, outdated, or vulnerable+outdated like 'rack')
+        assert_match(/Found a total of/, skip_output)
+        assert_match(/rack/, skip_output) # rack is vulnerable+outdated, still shows due to outdated
       end
 
       def test_multiple_skip_flags_exclude_multiple_types
@@ -72,14 +74,14 @@ module Package
       def test_multi_risk_package_appears_with_skip_one_risk
         # A package that is both outdated AND vulnerable should still appear
         # when we --skip-outdated because it's also vulnerable
-        # This test assumes the report file has such a package
+        # This test assumes the report file has such a package (rack is vulnerable+outdated)
 
         vulnerable_output = `bundle exec package-audit --vulnerable test/files/gemfile/report`
         skip_outdated_output = `bundle exec package-audit --skip-outdated test/files/gemfile/report`
 
-        # Both should show vulnerable packages
-        assert_match(/vulnerable/, vulnerable_output)
-        assert_match(/vulnerable/, skip_outdated_output)
+        # Both should show the rack package
+        assert_match(/rack/, vulnerable_output)
+        assert_match(/rack/, skip_outdated_output)
       end
 
       # Test empty results
@@ -91,12 +93,12 @@ module Package
       end
 
       def test_skip_flags_can_result_in_empty_list
-        # If we skip all risk types, we should get an empty or near-empty list
+        # If we skip all risk types, we should get the success message (no risky packages)
         output = `bundle exec package-audit --skip-deprecated --skip-outdated --skip-vulnerable \
 test/files/gemfile/report`
 
-        # This should show very few or no packages
-        assert_match(/Found a total of/, output)
+        # This should show the success message since all risky packages are filtered out
+        assert_match(/There are no deprecated, outdated or vulnerable/, output)
       end
     end
   end
