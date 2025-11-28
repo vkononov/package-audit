@@ -6,7 +6,7 @@ module Package
     module Util
       module SummaryPrinter
         def self.all
-          printf(" %<info>s\n %<cmd>s\n\n",
+          printf(" %<info>s\n %<cmd>s\n",
                  info: Util::BashColor.blue('To show how risk is calculated run:'),
                  cmd: Util::BashColor.magenta(' > package-audit risk'))
         end
@@ -17,7 +17,7 @@ module Package
         end
 
         def self.vulnerable(technology, cmd)
-          printf(" %<info>s\n %<cmd>s\n\n",
+          printf(" %<info>s\n %<cmd>s\n",
                  info: Util::BashColor.blue("For more information about #{technology.capitalize} vulnerabilities run:"),
                  cmd: Util::BashColor.magenta(" > #{cmd}"))
         end
