@@ -19,14 +19,14 @@ module Package
     def test_that_there_is_a_success_with_ignored_packages_message_when_report_is_empty
       output = `bundle exec package-audit test/files/gemfile/ignored_empty`
 
-      assert_match '0 vulnerable, 0 outdated, 0 deprecated (1 ignored).', output
+      assert_match '0 ⦗V⦘ulnerable, 0 ⦗O⦘utdated, 0 ⦗D⦘eprecated (1 ignored).', output
       assert_match 'There are no deprecated, outdated or vulnerable Ruby packages (1 ignored)!', output
     end
 
     def test_that_there_is_a_success_with_ignored_packages_message_when_report_is_not_empty
       output = `bundle exec package-audit test/files/gemfile/ignored`
 
-      assert_match '0 vulnerable, 1 outdated, 0 deprecated (1 ignored).', output
+      assert_match '0 ⦗V⦘ulnerable, 1 ⦗O⦘utdated, 0 ⦗D⦘eprecated (1 ignored).', output
       assert_match 'Found a total of 1 Ruby packages (1 ignored).', output
     end
 
@@ -60,7 +60,7 @@ module Package
       output = `bundle exec package-audit test/files/gemfile/report`
 
       assert_match 'Found a total of 3 Ruby packages.', output
-      assert_match '1 vulnerable (22 vulnerabilities), 2 outdated, 1 deprecated.', output
+      assert_match '1 ⦗V⦘ulnerable (22 vulnerabilities), 2 ⦗O⦘utdated, 1 ⦗D⦘eprecated.', output
     end
 
     def test_that_there_is_a_message_about_outdated_gems
@@ -140,7 +140,7 @@ module Package
     def test_that_there_is_a_report_of_node_modules
       output = `bundle exec package-audit test/files/yarn/report`
 
-      assert_match '1 vulnerable (1 vulnerabilities), 2 outdated, 1 deprecated.', output
+      assert_match '1 ⦗V⦘ulnerable (1 vulnerabilities), 2 ⦗O⦘utdated, 1 ⦗D⦘eprecated.', output
     end
 
     def test_that_there_is_a_message_about_outdated_node_modules
