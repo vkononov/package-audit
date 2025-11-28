@@ -20,6 +20,18 @@ Below is an example of running the script on a project that uses both Ruby and N
 
 ![Example Output](docs/example.png)
 
+### Understanding the Flags Column
+
+The Flags column shows which risk types apply to each package:
+
+- `⦗V··⦘` - Vulnerable (has security vulnerabilities)
+- `⦗·O·⦘` - Outdated (newer version available)
+- `⦗··D⦘` - Deprecated (no updates in 2+ years)
+- `⦗VO·⦘` - Both vulnerable and outdated
+- `⦗VOD⦘` - All three risk types apply
+
+The footer uses the same notation (⦗V⦘ulnerable, ⦗O⦘utdated, ⦗D⦘eprecated) as a legend.
+
 ## Continuous Integration
 
 This gem provides a return code of `0` to indicate success and `1` to indicate failure. It is specifically designed for seamless integration into continuous integration pipelines.
