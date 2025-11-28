@@ -99,10 +99,8 @@ module Package
         end
       end
 
-      def get_field_value(pkg, field) # rubocop:disable Metrics/MethodLength
+      def get_field_value(pkg, field)
         case field
-        when :groups
-          pkg.group_list
         when :risk_type
           Formatter::Risk.new(pkg.risk_type).format
         when :version
