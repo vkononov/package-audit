@@ -75,6 +75,8 @@ module Package
         @spinner.stop # Stop spinner before cleaning config to ensure clean output
         clean_config(all_packages_for_config)
 
+        puts unless @options[Enum::Option::FORMAT] # Add final blank line for default format
+
         cumulative_pkgs.any? ? 1 : 0
       ensure
         @spinner.stop

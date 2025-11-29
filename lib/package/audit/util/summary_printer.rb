@@ -6,31 +6,34 @@ module Package
     module Util
       module SummaryPrinter
         def self.all
-          printf("\n%<info>s\n%<cmd>s\n\n",
+          printf(" %<info>s\n %<cmd>s\n",
                  info: Util::BashColor.blue('To show how risk is calculated run:'),
                  cmd: Util::BashColor.magenta(' > package-audit risk'))
         end
 
         def self.deprecated
-          puts Util::BashColor.blue('Although the packages above have no recent updates, they may not be deprecated.')
-          puts Util::BashColor.blue("Please contact the package author for more information about its status.\n")
+          puts " #{Util::BashColor.blue('Although the packages above have no recent updates, ' \
+                                        'they may not be deprecated.')}"
+          puts " #{Util::BashColor.blue('Please contact the package author for more information about its status.')}"
+          puts
         end
 
         def self.vulnerable(technology, cmd)
-          printf("%<info>s\n%<cmd>s\n\n",
+          printf(" %<info>s\n %<cmd>s\n",
                  info: Util::BashColor.blue("For more information about #{technology.capitalize} vulnerabilities run:"),
                  cmd: Util::BashColor.magenta(" > #{cmd}"))
         end
 
         def self.total(technology, report, pkgs, ignored_pkgs)
           if ignored_pkgs.any?
-            puts Util::BashColor.cyan("Found a total of #{pkgs.length} #{technology.capitalize} packages " \
-                                      "(#{ignored_pkgs.length} ignored).\n")
+            puts " #{Util::BashColor.cyan("Found a total of #{pkgs.length} #{technology.capitalize} packages " \
+                                          "(#{ignored_pkgs.length} ignored).")}"
           elsif pkgs.any?
-            puts Util::BashColor.cyan("Found a total of #{pkgs.length} #{technology.capitalize} packages.\n")
+            puts " #{Util::BashColor.cyan("Found a total of #{pkgs.length} #{technology.capitalize} packages.")}"
           else
-            puts Util::BashColor.green("There are no #{report} #{technology.capitalize} packages!\n")
+            puts " #{Util::BashColor.green("There are no #{report} #{technology.capitalize} packages!")}"
           end
+          puts
         end
 
         def self.statistics(format, technology, report, pkgs, ignored_pkgs)
@@ -58,19 +61,21 @@ module Package
 
         private_class_method def self.display_results(format, technology, report, pkgs, ignored_pkgs, stats) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/ParameterLists
           if pkgs.any?
-            print status_message(stats)
+            print " #{status_message(stats)}"
             print Util::BashColor.cyan(' \\') if format == Enum::Format::MARKDOWN
             puts
             total(technology, report, pkgs, ignored_pkgs)
           elsif ignored_pkgs.any?
-            print status_message(stats)
+            print " #{status_message(stats)}"
             print Util::BashColor.cyan(' \\') if format == Enum::Format::MARKDOWN
             puts
-            puts Util::BashColor.green("There are no deprecated, outdated or vulnerable #{technology.capitalize} " \
-                                       "packages (#{ignored_pkgs.length} ignored)!\n")
+            puts " #{Util::BashColor.green('There are no deprecated, outdated or vulnerable ' \
+                                           "#{technology.capitalize} packages (#{ignored_pkgs.length} ignored)!")}"
+            puts
           else
-            puts Util::BashColor.green("There are no deprecated, outdated or vulnerable #{technology.capitalize} " \
-                                       "packages!\n")
+            puts " #{Util::BashColor.green('There are no deprecated, outdated or vulnerable ' \
+                                           "#{technology.capitalize} packages!")}"
+            puts
           end
         end
 
