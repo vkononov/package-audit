@@ -47,6 +47,7 @@ module Package
         thread_index = 0
 
         @spinner.start
+        @any_section_printed = false
         threads = @technologies.map.with_index do |technology, technology_index|
           Thread.new do
             all_pkgs, ignored_pkgs = PackageFinder.new(@config, @dir, @report, @groups).run(technology)
@@ -59,7 +60,7 @@ module Package
             sleep 0.1 while technology_index != thread_index # print each technology in order
             mutex.synchronize do
               @spinner.stop
-              print_results(technology, active_pkgs, ignored_pkgs || [])
+              print_results(technology, active_pkgs, ignored_pkgs || [], first_technology: technology_index.zero?)
               thread_index += 1
               @spinner.start
             end
@@ -82,17 +83,43 @@ module Package
         @spinner.stop
       end
 
-      def print_results(technology, pkgs, ignored_pkgs)
+      def print_results(technology, pkgs, ignored_pkgs, first_technology: true) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/MethodLength
+        format = @options[Enum::Option::FORMAT]
+        is_pretty = format.nil?
+        is_csv = format == Enum::Format::CSV
+        has_packages = pkgs.any?
+
+        # Pretty format: blank line before each section
+        # CSV/Markdown: blank line between sections (only if previous section had output)
+        if is_pretty
+          puts
+        elsif @any_section_printed && has_packages
+          puts
+        end
+
         PackagePrinter.new(@options, pkgs).print(Const::Fields::DEFAULT)
-        print_summary(technology, pkgs, ignored_pkgs) unless @options[Enum::Option::FORMAT] == Enum::Format::CSV
-        print_disclaimer(technology) unless @options[Enum::Option::FORMAT] || pkgs.empty?
+
+        # Markdown: blank line between table and summary (when there's a table)
+        puts if !is_pretty && !is_csv && has_packages
+
+        print_summary(technology, pkgs, ignored_pkgs) unless is_csv
+
+        # Pretty format: blank line before disclaimer
+        puts if is_pretty && has_packages
+
+        print_disclaimer(technology) unless format || pkgs.empty?
+
+        # Track that this section produced output (for CSV/Markdown separator logic)
+        # Pretty and Markdown always print summary, CSV only prints if there are packages
+        @any_section_printed = true if has_packages || !is_csv
       end
 
       def print_summary(technology, pkgs, ignored_pkgs)
+        format = @options[Enum::Option::FORMAT]
         if @report == Enum::Report::ALL
-          Util::SummaryPrinter.statistics(@options[Enum::Option::FORMAT], technology, @report, pkgs, ignored_pkgs)
+          Util::SummaryPrinter.statistics(format, technology, @report, pkgs, ignored_pkgs)
         else
-          Util::SummaryPrinter.total(technology, @report, pkgs, ignored_pkgs)
+          Util::SummaryPrinter.total(format, technology, @report, pkgs, ignored_pkgs)
         end
       end
 

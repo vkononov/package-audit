@@ -24,10 +24,8 @@ module Package
         case @options[Enum::Option::FORMAT]
         when Enum::Format::CSV
           csv(fields, exclude_headers: @options[Enum::Option::CSV_EXCLUDE_HEADERS])
-          puts
         when Enum::Format::MARKDOWN
           markdown(fields)
-          puts
         else
           pretty(fields)
         end
@@ -51,7 +49,6 @@ module Package
         separator_plain = max_widths.map { |width| '─' * width }.join('─' * COLUMN_GAP)
         separator = Util::BashColor.light_green(separator_plain)
 
-        puts ' '
         puts " #{separator}"
         puts " #{header}"
         puts " #{separator}"
