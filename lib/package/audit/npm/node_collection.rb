@@ -35,13 +35,15 @@ module Package
 
         def deprecated
           implicit_pkgs = fetch_from_lock_file
-          pkgs = NpmMetaData.new(implicit_pkgs).fetch.filter(&:deprecated?)
+          vulnerable_pkgs = VulnerabilityFinder.new(@dir, implicit_pkgs).run
+          pkgs = NpmMetaData.new(vulnerable_pkgs + implicit_pkgs).fetch.filter(&:deprecated?)
           DuplicatePackageMerger.new(pkgs).run
         end
 
         def outdated
           implicit_pkgs = fetch_from_lock_file
-          pkgs = NpmMetaData.new(implicit_pkgs).fetch.filter(&:outdated?)
+          vulnerable_pkgs = VulnerabilityFinder.new(@dir, implicit_pkgs).run
+          pkgs = NpmMetaData.new(vulnerable_pkgs + implicit_pkgs).fetch.filter(&:outdated?)
           DuplicatePackageMerger.new(pkgs).run
         end
 

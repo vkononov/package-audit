@@ -38,14 +38,16 @@ module Package
         def deprecated
           specs = BundlerSpecs.gemfile(@dir)
           pkgs = specs.map { |spec| Package.new(spec.name, spec.version, Enum::Technology::RUBY) }
-          pkgs = GemMetaData.new(@dir, pkgs).fetch.filter(&:deprecated?)
+          vulnerable_pkgs = VulnerabilityFinder.new(@dir).run
+          pkgs = GemMetaData.new(@dir, pkgs + vulnerable_pkgs).fetch.filter(&:deprecated?)
           DuplicatePackageMerger.new(pkgs).run
         end
 
         def outdated(include_implicit: false)
           specs = include_implicit ? BundlerSpecs.all(@dir) : BundlerSpecs.gemfile(@dir)
           pkgs = specs.map { |spec| Package.new(spec.name, spec.version, Enum::Technology::RUBY) }
-          pkgs = GemMetaData.new(@dir, pkgs).fetch.filter(&:outdated?)
+          vulnerable_pkgs = VulnerabilityFinder.new(@dir).run
+          pkgs = GemMetaData.new(@dir, pkgs + vulnerable_pkgs).fetch.filter(&:outdated?)
           DuplicatePackageMerger.new(pkgs).run
         end
 
