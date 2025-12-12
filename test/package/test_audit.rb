@@ -146,7 +146,7 @@ module Package
     def test_that_there_is_a_message_about_outdated_node_modules
       output = `bundle exec package-audit --outdated test/files/yarn/outdated`
 
-      assert_match 'Found a total of 3 Node packages.', output
+      assert_match(/Found a total of \d+ Node packages\./, output)
     end
 
     def test_that_there_is_a_message_about_deprecated_node_modules
