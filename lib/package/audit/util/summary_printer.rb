@@ -23,15 +23,21 @@ module Package
                  cmd: Util::BashColor.magenta(" > #{cmd}"))
         end
 
-        def self.total(format, technology, report, pkgs, ignored_pkgs)
+        def self.total(format, technology, report, pkgs, ignored_pkgs) # rubocop:disable Metrics/MethodLength
           prefix = format.nil? ? ' ' : ''
           if ignored_pkgs.any?
-            puts "#{prefix}#{Util::BashColor.cyan("Found a total of #{pkgs.length} #{technology.capitalize} packages " \
-                                          "(#{ignored_pkgs.length} ignored).")}"
+            puts "#{prefix}#{Util::BashColor.cyan(
+              "Found a total of #{pkgs.length} #{technology.capitalize} packages " \
+              "(#{ignored_pkgs.length} ignored)."
+            )}"
           elsif pkgs.any?
-            puts "#{prefix}#{Util::BashColor.cyan("Found a total of #{pkgs.length} #{technology.capitalize} packages.")}"
+            puts "#{prefix}#{Util::BashColor.cyan(
+              "Found a total of #{pkgs.length} #{technology.capitalize} packages."
+            )}"
           else
-            puts "#{prefix}#{Util::BashColor.green("There are no #{report} #{technology.capitalize} packages!")}"
+            puts "#{prefix}#{Util::BashColor.green(
+              "There are no #{report} #{technology.capitalize} packages!"
+            )}"
           end
         end
 
@@ -69,11 +75,13 @@ module Package
             print "#{prefix}#{status_message(stats)}"
             print Util::BashColor.cyan(' \\') if format == Enum::Format::MARKDOWN
             puts
-            puts "#{prefix}#{Util::BashColor.green('There are no deprecated, outdated or vulnerable ' \
-                                           "#{technology.capitalize} packages (#{ignored_pkgs.length} ignored)!")}"
+            puts "#{prefix}#{Util::BashColor.green(
+              'There are no deprecated, outdated or vulnerable ' \
+              "#{technology.capitalize} packages (#{ignored_pkgs.length} ignored)!"
+            )}"
           else
             puts "#{prefix}#{Util::BashColor.green('There are no deprecated, outdated or vulnerable ' \
-                                           "#{technology.capitalize} packages!")}"
+                                                   "#{technology.capitalize} packages!")}"
           end
         end
 
