@@ -16,4 +16,6 @@ end
 
 group :test do
   gem 'minitest'
+
+  gem 'minitest-mock' if RUBY_VERSION >= '3.1.0'
 end
