@@ -60,7 +60,7 @@ module Package
             sleep 0.1 while technology_index != thread_index # print each technology in order
             mutex.synchronize do
               @spinner.stop
-              print_results(technology, active_pkgs, ignored_pkgs || [], first_technology: technology_index.zero?)
+              print_results(technology, active_pkgs, ignored_pkgs || [])
               thread_index += 1
               @spinner.start
             end
@@ -83,7 +83,7 @@ module Package
         @spinner.stop
       end
 
-      def print_results(technology, pkgs, ignored_pkgs, first_technology: true) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/MethodLength
+      def print_results(technology, pkgs, ignored_pkgs) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         format = @options[Enum::Option::FORMAT]
         is_pretty = format.nil?
         is_csv = format == Enum::Format::CSV
@@ -91,11 +91,7 @@ module Package
 
         # Pretty format: blank line before each section
         # CSV/Markdown: blank line between sections (only if previous section had output)
-        if is_pretty
-          puts
-        elsif @any_section_printed && has_packages
-          puts
-        end
+        puts if is_pretty || (@any_section_printed && has_packages)
 
         PackagePrinter.new(@options, pkgs).print(Const::Fields::DEFAULT)
 
