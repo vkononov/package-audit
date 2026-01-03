@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+
+gem 'deprecated'
+gem 'irb', '1.5.0'
+gem 'rack', '2.2.0.0'

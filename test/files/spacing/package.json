@@ -1,0 +1,10 @@
+{
+  "name": "spacing-test",
+  "private": true,
+  "version": "0.1.0",
+  "dependencies": {
+    "deprecated": "^0.0.2",
+    "js-tokens": "^8.0.0",
+    "semver": "^6.3.0"
+  }
+}
