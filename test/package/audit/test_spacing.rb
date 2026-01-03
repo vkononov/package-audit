@@ -119,9 +119,9 @@ module Package
         # CSV should have header
         assert_match(/^name,version/m, clean, 'CSV should have header')
 
-        # Should have data rows
-        assert_match(/esbuild/, clean, 'CSV should have Node package data')
-        assert_match(/nokogiri/, clean, 'CSV should have Ruby package data')
+        # Should have data rows (semver for Node, rack for Ruby)
+        assert_match(/semver/, clean, 'CSV should have Node package data')
+        assert_match(/rack/, clean, 'CSV should have Ruby package data')
       end
 
       def test_csv_format_deprecated

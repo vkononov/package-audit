@@ -1,20 +1,10 @@
 {
-  "name": "app",
+  "name": "spacing-test",
   "private": true,
-  "engines": {
-    "node": "24.x",
-    "yarn": "1.x"
-  },
-  "devDependencies": {
-    "esbuild": "^0.27.0"
-  },
-  "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --target=safari13 --outdir=app/assets/builds --public-path=/assets"
-  },
+  "version": "0.1.0",
   "dependencies": {
-    "@hotwired/stimulus": "^3.2.2",
-    "@hotwired/turbo-rails": "^8.0.20",
-    "@stripe/stripe-js": "^8.5.2",
-    "masonry-layout": "^4.2.2"
+    "deprecated": "^0.0.2",
+    "js-tokens": "^8.0.0",
+    "semver": "^6.3.0"
   }
 }
