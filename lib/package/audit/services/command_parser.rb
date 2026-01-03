@@ -42,6 +42,7 @@ module Package
 
       def process_technologies # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
         mutex = Mutex.new
+        cv = ConditionVariable.new
         cumulative_pkgs = []
         all_packages_for_config = []
         thread_index = 0
@@ -57,11 +58,12 @@ module Package
             cumulative_pkgs += active_pkgs
             mutex.synchronize { all_packages_for_config += all_pkgs || [] }
 
-            sleep 0.1 while technology_index != thread_index # print each technology in order
             mutex.synchronize do
+              cv.wait(mutex) until technology_index == thread_index # print each technology in order
               @spinner.stop
               print_results(technology, active_pkgs, ignored_pkgs || [])
               thread_index += 1
+              cv.broadcast # wake up waiting threads to check their turn
               @spinner.start
             end
           rescue StandardError => e
