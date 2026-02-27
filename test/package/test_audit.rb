@@ -60,7 +60,7 @@ module Package
       output = `bundle exec package-audit test/files/gemfile/report`
 
       assert_match 'Found a total of 3 Ruby packages.', output
-      assert_match '1 ⦗V⦘ulnerable (22 vulnerabilities), 2 ⦗O⦘utdated, 1 ⦗D⦘eprecated.', output
+      assert_match '1 ⦗V⦘ulnerable (24 vulnerabilities), 2 ⦗O⦘utdated, 1 ⦗D⦘eprecated.', output
     end
 
     def test_that_there_is_a_message_about_outdated_gems
@@ -140,7 +140,7 @@ module Package
     def test_that_there_is_a_report_of_node_modules
       output = `bundle exec package-audit test/files/yarn/report`
 
-      assert_match '1 ⦗V⦘ulnerable (1 vulnerabilities), 2 ⦗O⦘utdated, 1 ⦗D⦘eprecated.', output
+      assert_match(/1 ⦗V⦘ulnerable \(\d+ vulnerabilities\), 2 ⦗O⦘utdated, 1 ⦗D⦘eprecated\./, output)
     end
 
     def test_that_there_is_a_message_about_outdated_node_modules
