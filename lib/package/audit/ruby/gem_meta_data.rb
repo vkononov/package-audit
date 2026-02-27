@@ -226,8 +226,8 @@ module Package
 
         def parse_version_dates(response_body)
           versions = JSON.parse(response_body)
-          versions.each_with_object({}) do |version_info, dates|
-            dates[version_info['number']] = version_info['created_at']
+          versions.to_h do |version_info|
+            [version_info['number'], version_info['created_at']]
           end
         end
 
