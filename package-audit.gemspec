@@ -16,9 +16,16 @@ Gem::Specification.new do |spec|
   spec.metadata['source_code_uri'] = 'https://github.com/vkononov/package-audit'
 
   # Specify which files should be added to the gem when it is released.
-  spec.files = Dir.glob('{exe,lib,sig}/**/*', File::FNM_DOTMATCH)
+  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
+  gemspec = File.basename(__FILE__)
+  spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
+    ls.readlines("\x0", chomp: true).reject do |f|
+      (f == gemspec) ||
+        f.start_with?(*%w[bin/ docs/ test/ .git .github .rubocop.yml Gemfile Rakefile])
+    end
+  end
   spec.bindir = 'exe'
-  spec.executables << 'package-audit'
+  spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
   # Uncomment to register a new dependency of your gem
