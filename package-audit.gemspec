@@ -16,13 +16,13 @@ Gem::Specification.new do |spec|
   spec.metadata['source_code_uri'] = 'https://github.com/vkononov/package-audit'
 
   # Ship only what the gem needs at runtime: the executable and library code
-  # plus the license and readme. Using an allowlist keeps tests, tooling, CI
-  # config, and other development files out of the package even as new ones
-  # are added over time.
+  # plus the license, readme, and the images the readme references. Using an
+  # allowlist keeps tests, tooling, CI config, and other development files out
+  # of the package even as new ones are added over time.
   root_files = %w[LICENSE.txt README.md]
   spec.files = IO.popen(%w[git ls-files -z], chdir: __dir__, err: IO::NULL) do |ls|
     ls.readlines("\x0", chomp: true).select do |f|
-      f.start_with?('exe/', 'lib/') || root_files.include?(f)
+      f.start_with?('exe/', 'lib/', 'docs/') || root_files.include?(f)
     end
   end
   spec.bindir = 'exe'
