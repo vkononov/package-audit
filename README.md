@@ -1,11 +1,14 @@
 # Package::Audit
 
-[![Gem Version](https://img.shields.io/gem/v/package-audit.svg)](https://rubygems.org/gems/package-audit)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Lint Status](https://github.com/vkononov/package-audit/actions/workflows/lint.yml/badge.svg)](https://github.com/vkononov/package-audit/actions/workflows/lint.yml)
-[![Test Status](https://github.com/vkononov/package-audit/actions/workflows/test.yml/badge.svg)](https://github.com/vkononov/package-audit/actions/workflows/test.yml)
+[![Gem Version](https://img.shields.io/gem/v/package-audit.svg?label=Gem&logo=rubygems&logoColor=white)](https://rubygems.org/gems/package-audit)
+[![Ruby](https://img.shields.io/badge/Ruby-2.6%20to%204.0-CC342D?logo=ruby&logoColor=white)](https://github.com/vkononov/package-audit/blob/main/.github/workflows/test.yml)
+[![Test Matrix](https://img.shields.io/github/actions/workflow/status/vkononov/package-audit/test.yml?branch=main&label=Test%20Matrix&logo=github)](https://github.com/vkononov/package-audit/actions/workflows/test.yml)
+[![Lint](https://img.shields.io/github/actions/workflow/status/vkononov/package-audit/lint.yml?branch=main&label=Lint&logo=github)](https://github.com/vkononov/package-audit/actions/workflows/lint.yml)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 A useful tool for patch management and prioritization, `package-audit` produces a list of dependencies that are outdated, deprecated or have security vulnerabilities.
+
+Supports **Ruby 2.6 → latest**, with the full Ruby matrix tested daily in CI.
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/vkononov)
 
