@@ -140,7 +140,7 @@ module Package
         when Enum::Technology::RUBY
           Const::Cmd::BUNDLE_AUDIT
         when Enum::Technology::NODE
-          Const::Cmd::YARN_AUDIT
+          Const::Cmd::NPM_AUDIT
         else
           raise ArgumentError, "Unexpected technology \"#{technology}\" found in #{__method__}"
         end
