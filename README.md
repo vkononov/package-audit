@@ -4,7 +4,7 @@
 [![Ruby](https://img.shields.io/badge/Ruby-2.6%20to%204.0-CC342D?logo=ruby&logoColor=white)](https://github.com/vkononov/package-audit/blob/main/.github/workflows/test.yml)
 [![Test Matrix](https://img.shields.io/github/actions/workflow/status/vkononov/package-audit/test.yml?branch=main&label=Test%20Matrix&logo=github)](https://github.com/vkononov/package-audit/actions/workflows/test.yml)
 [![Lint](https://img.shields.io/github/actions/workflow/status/vkononov/package-audit/lint.yml?branch=main&label=Lint&logo=github)](https://github.com/vkononov/package-audit/actions/workflows/lint.yml)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/license/MIT)
 
 A useful tool for patch management and prioritization, `package-audit` produces a list of dependencies that are outdated, deprecated or have security vulnerabilities.
 
@@ -75,6 +75,9 @@ Show only specific risk types:
 # Show only deprecated packages
 package-audit [DIR] --deprecated
 
+# Show only outdated packages
+package-audit [DIR] --outdated
+
 # Show only vulnerable packages
 package-audit [DIR] --vulnerable
 
@@ -93,23 +96,14 @@ package-audit [DIR] --skip-deprecated
 # Show everything except outdated packages
 package-audit [DIR] --skip-outdated
 
+# Show everything except vulnerable packages
+package-audit [DIR] --skip-vulnerable
+
 # Show only vulnerable packages (exclude deprecated and outdated)
 package-audit [DIR] --skip-deprecated --skip-outdated
 ```
 
 **Important:** Packages with multiple risk types are handled intelligently. For example, a package that is both outdated and vulnerable will still appear when using `--skip-outdated` because it has a vulnerability.
-
-### Understanding the Flags Column
-
-The Flags column in the output shows which risk types apply to each package:
-
-- `⦗V··⦘` - Vulnerable (has security vulnerabilities)
-- `⦗·O·⦘` - Outdated (newer version available)
-- `⦗··D⦘` - Deprecated (no updates in 2+ years)
-- `⦗VO·⦘` - Both vulnerable and outdated
-- `⦗VOD⦘` - All three risk types apply
-
-The footer uses the same notation `⦗V⦘ulnerable, ⦗O⦘utdated, ⦗D⦘eprecated` as a legend.
 
 ### Scoping Options
 
@@ -144,11 +138,14 @@ package-audit [DIR] --include-ignored
 ### Output Formats
 
 ```bash
-# CSV format
+# CSV format (-f is an alias for --format)
 package-audit [DIR] --format csv
 
 # Markdown format
 package-audit [DIR] --format md
+
+# CSV without the header row
+package-audit [DIR] --format csv --exclude-headers
 ```
 
 ### Other Commands
@@ -157,7 +154,7 @@ package-audit [DIR] --format md
 # Show how risk is calculated
 package-audit risk
 
-# Show version
+# Show version (-v and --version also work)
 package-audit version
 ```
 
@@ -215,4 +212,4 @@ technology:
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/license/MIT).
