@@ -6,8 +6,9 @@ Gem::Specification.new do |spec|
   spec.authors = ['Vadim Kononov']
   spec.email = ['vadim@konoson.com']
 
-  spec.summary = 'A helper tool to find outdated, deprecated and vulnerable dependencies.'
-  spec.description = 'A useful tool for patch management and prioritization, package-audit produces a list of dependencies that are outdated, deprecated or have security vulnerabilities.' # rubocop:disable Layout/LineLength
+  spec.summary = 'CLI that reports outdated, deprecated and vulnerable dependencies in a project'
+  spec.description = 'Audits project dependencies across supported package managers and lists those that are ' \
+                     'outdated, deprecated or have known security vulnerabilities, for patch prioritization.'
   spec.homepage = 'https://github.com/vkononov/package-audit'
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 2.6.0'
