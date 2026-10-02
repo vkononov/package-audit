@@ -59,6 +59,15 @@ module Package
           assert node_collection.send(:local_dependency?, 'git+https://github.com/user/repo.git#file:path')
         end
 
+        def test_local_dependency_detection_workspace_and_portal_protocols
+          node_collection = create_node_collection
+
+          assert node_collection.send(:local_dependency?, 'workspace:*')
+          assert node_collection.send(:local_dependency?, 'workspace:^')
+          assert node_collection.send(:local_dependency?, 'workspace:packages/shared')
+          assert node_collection.send(:local_dependency?, 'portal:../shared')
+        end
+
         def test_normal_dependency_detection
           test_version_ranges
           test_exact_versions
