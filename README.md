@@ -15,7 +15,7 @@ Supports **Ruby 2.6 → latest**, with the full Ruby matrix tested daily in CI.
 ## Supported Technologies
 
 * Ruby
-* Node (using Yarn)
+* Node (using npm or Yarn)
 
 ## Report Example
 

@@ -1,6 +1,7 @@
 require_relative '../const/file'
 require_relative '../services/duplicate_package_merger'
 require_relative 'npm_meta_data'
+require_relative 'package_lock_parser'
 require_relative 'vulnerability_finder'
 require_relative 'yarn_lock_parser'
 
@@ -82,12 +83,18 @@ module Package
 
         def fetch_from_lock_file
           default_deps, dev_deps, resolutions = fetch_from_package_json
-          if File.exist?("#{@dir}/#{Const::File::YARN_LOCK}")
-            YarnLockParser.new("#{@dir}/#{Const::File::YARN_LOCK}").fetch(default_deps || {}, dev_deps || {},
-                                                                          resolutions || {})
-          else
-            []
-          end
+          parser = lock_file_parser
+          return [] if parser.nil?
+
+          parser.fetch(default_deps || {}, dev_deps || {}, resolutions || {})
+        end
+
+        def lock_file_parser
+          yarn_lock = "#{@dir}/#{Const::File::YARN_LOCK}"
+          return YarnLockParser.new(yarn_lock) if File.exist?(yarn_lock)
+
+          package_lock = "#{@dir}/#{Const::File::PACKAGE_LOCK_JSON}"
+          PackageLockParser.new(package_lock) if File.exist?(package_lock)
         end
       end
     end
