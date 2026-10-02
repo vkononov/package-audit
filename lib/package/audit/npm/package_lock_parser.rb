@@ -3,6 +3,9 @@ require 'json'
 require_relative '../enum/group'
 require_relative '../models/package'
 
+# Ruby 2.7 added this. A missing lockfile entry raises it, same as the yarn parser.
+Object.const_set(:NoMatchingPatternError, Class.new(StandardError)) unless defined?(NoMatchingPatternError)
+
 module Package
   module Audit
     module Npm
