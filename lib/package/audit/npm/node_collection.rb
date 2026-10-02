@@ -73,12 +73,11 @@ module Package
           dependencies.reject { |_name, version| local_dependency?(version) }
         end
 
+        # Packages that live in the project itself (paths, workspaces, portals)
+        # are not published to the registry and cannot be audited against it.
         def local_dependency?(version)
-          # Check for local file paths
-          version.to_s.start_with?('file:', 'link:', './', '../') ||
-            version.to_s.include?('file:') ||
-            # Check for git repositories with local paths
-            (version.to_s.start_with?('git+') && version.to_s.include?('file:'))
+          version.to_s.start_with?('file:', 'link:', 'workspace:', 'portal:', './', '../') ||
+            version.to_s.include?('file:')
         end
 
         def fetch_from_lock_file
