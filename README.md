@@ -10,8 +10,6 @@ A useful tool for patch management and prioritization, `package-audit` produces 
 
 Supports **Ruby 2.6 → latest**, with the full Ruby matrix tested daily in CI.
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/vkononov)
-
 ## Supported Technologies
 
 * Ruby
