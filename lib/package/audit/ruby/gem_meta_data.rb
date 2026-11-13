@@ -17,7 +17,7 @@ module Package
         def initialize(dir, pkgs)
           @dir = dir
           @pkgs = pkgs
-          @gem_hash = {}
+          @gem_hash = @pkgs.to_h { |pkg| [pkg.name, pkg] }
         end
 
         def fetch
