@@ -167,6 +167,8 @@ package-audit help [COMMAND]
 
 The `package-audit` gem automatically searches for `.package-audit.yml` in the current directory or in the specified `DIR` if available. However, you have the option to override the default configuration file location by using the `--config` (or `-c`) flag.
 
+Audit runs leave the configuration file unchanged. Remove stale exclusions explicitly; a filtered report does not establish that a package has been removed from the project.
+
 #### Below is an example of a configuration file:
 
 ```YAML

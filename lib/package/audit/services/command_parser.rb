@@ -1,12 +1,12 @@
 require_relative '../const/cmd'
 require_relative '../const/file'
 require_relative '../enum/option'
+require_relative '../enum/format'
 require_relative '../enum/report'
 require_relative '../technology/detector'
 require_relative '../technology/validator'
 require_relative '../util/spinner'
 require_relative '../util/summary_printer'
-require_relative 'config_cleaner'
 require_relative 'package_finder'
 require_relative 'package_printer'
 
@@ -43,7 +43,6 @@ module Package
       def process_technologies # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
         mutex = Mutex.new
         cumulative_pkgs = []
-        all_packages_for_config = []
         thread_index = 0
 
         @spinner.start
@@ -54,8 +53,7 @@ module Package
             ignored_pkgs = [] if @options[Enum::Option::INCLUDE_IGNORED]
             active_pkgs = (all_pkgs || []) - (ignored_pkgs || [])
             active_pkgs = filter_by_flags(active_pkgs) if any_filters_set?
-            cumulative_pkgs += active_pkgs
-            mutex.synchronize { all_packages_for_config += all_pkgs || [] }
+            mutex.synchronize { cumulative_pkgs += active_pkgs }
 
             # Wait for our turn to print (synchronized read of thread_index)
             loop do
@@ -80,8 +78,7 @@ module Package
           raise thread[:exception] if thread[:exception]
         end
 
-        @spinner.stop # Stop spinner before cleaning config to ensure clean output
-        clean_config(all_packages_for_config)
+        @spinner.stop
 
         puts unless @options[Enum::Option::FORMAT] # Add final blank line for default format
 
@@ -166,10 +163,6 @@ module Package
         technology_validator = Technology::Validator.new(@dir)
         @options[Enum::Option::TECHNOLOGY]&.each { |technology| technology_validator.validate! technology }
         (@options[Enum::Option::TECHNOLOGY] || Technology::Detector.new(@dir).detect).sort
-      end
-
-      def clean_config(all_packages)
-        ConfigCleaner.new(@dir, @config, all_packages, @options).run
       end
 
       def human_readable_technologies
