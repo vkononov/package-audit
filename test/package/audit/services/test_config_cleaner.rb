@@ -27,6 +27,22 @@ module Package
         FileUtils.rm_rf(@temp_dir)
       end
 
+      def test_cleanup_only_removes_stale_entries_for_selected_technology
+        %w[ruby node].each do |selected|
+          other = selected == 'ruby' ? 'node' : 'ruby'
+          untouched = { 'other-package' => { 'version' => '1.0.0', 'vulnerable' => false } }
+          config = { 'technology' => {
+            selected => { 'removed-package' => { 'version' => '1.0.0' } }, other => untouched
+          } }
+          File.write(@config_file, config.to_yaml)
+          cleaner = ConfigCleaner.new(@temp_dir, config, [], { 'technology' => [selected] })
+          capture_io { cleaner.run }
+
+          assert_equal({ 'technology' => { other => untouched } }, YAML.load_file(@config_file))
+          assert_equal(['removed-package'], cleaner.removed_packages.map { |package| package[:name] })
+        end
+      end
+
       def test_that_it_initializes_correctly
         config = { 'technology' => { 'ruby' => { 'test-gem' => { 'version' => '1.0.0' } } } }
         cleaner = ConfigCleaner.new(@temp_dir, config, @all_packages, @options)

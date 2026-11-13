@@ -62,7 +62,10 @@ module Package
         cleaned
       end
 
-      def clean_packages_for_technology(technology, packages)
+      def clean_packages_for_technology(technology, packages) # rubocop:disable Metrics/MethodLength
+        technologies = @options[Enum::Option::TECHNOLOGY]
+        return packages if technologies && !technologies.include?(technology)
+
         return {} unless packages.is_a?(Hash)
 
         current_packages = current_packages_for_technology(technology)
